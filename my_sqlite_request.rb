@@ -24,13 +24,14 @@ class MySqliteRequest
         @type_of_request    = :none
         @selected_columns   = []
         @table_name         = nil
+        @table_data         = nil
         @order              = :asc
         @query_result       = []
     end
 
     def from(table_name)
         @table_name = table_name
-        @data = CSV.parse(File.read(@table_name), headers: true)
+        @table_data = CSV.parse(File.read(@table_name), headers: true)
         self
     end
 
@@ -48,7 +49,7 @@ class MySqliteRequest
 
     def add_selected_columns(row)
         @selected_columns.each do |selected_column|
-            if selected_column = '*'
+            if selected_column == '*'
                 @query_result << row
             else
                 @query_result << {selected_column => row[selected_column]}
@@ -57,7 +58,7 @@ class MySqliteRequest
     end
 
     def where(column_name, criteria)
-        @data.each do |row|
+        @table_data.each do |row|
             if row[column_name] == criteria
                 add_selected_columns(row.to_hash)
             end
@@ -79,7 +80,30 @@ class MySqliteRequest
         self
     end
 
+    def validate_hash_keys(headers_array, keys_array)
+        headers_array.each do |header_name|
+            if keys_array.none?(header_name)
+                raise "Advisory: Your input does not include \"#{header_name}\" category"
+                return
+            end
+        end
+    end
+
     def values(data)
+        headers_array = CSV.read(@table_name, headers: true).headers
+        keys_array = data.keys
+        validated_values_array = []
+
+        validate_hash_keys(headers_array, keys_array)
+
+        headers_array.each do |header_name|
+            validated_values_array << data[header_name]
+        end
+
+        CSV.open(@table_name, "a+", :row_sep => "\r\n") do |csv| # `:row_sep => "\r\n"` needed to append a input values to a new line
+                csv << validated_values_array
+        end
+
         self
     end
 
@@ -98,23 +122,23 @@ class MySqliteRequest
     end
 
     def print_csv
-        @data.each do |row|
-            row
+        @table_data.each do |row|
+            p row.to_hash
         end
     end
 
-    def print
-        puts "Type of request:  #{@type_of_request}"
-        puts "Table name:       #{@table_name}"
-        puts "Selected columns: #{@selected_columns}"
-        puts "Order:            #{@order}"
-        puts "Query result:     #{@query_result}"
-        # puts "Data:             #{@data}"
+    def print_attributes
+        puts    "Type of request:  #{@type_of_request}"
+        puts    "Table name:       #{@table_name}"
+        puts    "Selected columns: #{@selected_columns}"
+        puts    "Order:            #{@order}"
+        puts    "Query result:     #{@query_result}"
+
         # print_csv
     end
 
     def run
-        print
+        print_attributes
     end
 
     def set_type_of_request(request_type)
@@ -128,12 +152,19 @@ end
 
 def _main()
     request = MySqliteRequest.new
-    request = request.from('nba_player_data.csv')
+
+    # SELECT
+    # request = request.from('nba_player_data.csv')
     # request = request.select('name')
     # request = request.select(["name", "birth_date"])
-    request = request.select('*')
-    request = request.where('name', 'Jerome Allen')
+    # request = request.select('*')
+    # request = request.where('name', 'Jerome Allen')
     # request = request.where('year_start', '1990')
+
+    # INSERT
+    request = request.insert('nba_player_data.csv')
+    request = request.values({"name"=>"Neil Ranada", "year_start"=>"2008", "year_end"=>"2012", "position"=>"G", "height"=>"5-7", "weight"=>"150", "birth_date"=>"January 1, 1980", "college"=>"University of Florida"})
+    request = request.values({"year_start"=>"2008", "name"=>"Gandalf the Grey", "year_end"=>"2012", "position"=>"G", "height"=>"5-7", "weight"=>"150", "birth_date"=>"January 1, 1980", "college"=>"University of Florida"})
     request.run
 end
 
