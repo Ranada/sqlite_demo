@@ -52,16 +52,24 @@ class MySqliteRequest
     end
 
     def add_rows_to_csv(joined_csv)
-        @table_data.each do |table_row|
+        @table_data.each do |original_row|
+            original_row_hash = original_row.to_hash
             combined_values_array = []
-            combined_values_array += table_row.to_hash.values
+            combined_values_array += original_row_hash.values
+            @join_table_data.each do |joining_row|
+                joining_row_hash = joining_row.to_hash
+                if joining_row_hash[@column_on_join_table] == original_row_hash[@column_on_table]
+                    combined_values_array += joining_row_hash.values
+                end
+            end
+            p combined_values_array
             joined_csv << combined_values_array
         end
     end
 
     def join(column_on_table, join_table_name, column_on_join_table)
         @join_table_name = join_table_name
-        @join_table_data = CSV.parse(File.read(@table_name), headers: true)
+        @join_table_data = CSV.parse(File.read(@join_table_name), headers: true)
         @column_on_table = column_on_table
         @column_on_join_table = column_on_join_table
 
@@ -70,7 +78,7 @@ class MySqliteRequest
         combined_headers_array = []
         combined_headers_array += table_headers_array + join_table_headers_array
 
-        CSV.open("joined_table.csv", "a+", :row_sep => "\r\n") do |joined_csv|
+        CSV.open("new.csv", "a+", :row_sep => "\r\n") do |joined_csv|
             joined_csv << combined_headers_array
             add_rows_to_csv(joined_csv)
         end
@@ -139,7 +147,7 @@ class MySqliteRequest
         puts    "Type of request:      #{@type_of_request}"
         puts    "Selected columns:     #{@selected_columns}"
         puts    "Table name:           #{@table_name}"
-        p       "Table data:          "
+        print   "Table data:          "
         p                              @table_data
         puts    "Joining table name:   #{@join_table_name}"
         print   "Joining table data:  "
