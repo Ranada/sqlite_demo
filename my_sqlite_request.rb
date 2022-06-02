@@ -6,10 +6,10 @@ class MySqliteRequest
         @selected_columns       = []
         @table_name             = nil
         @table_data             = nil
-        @join_table_name        = nil
-        @join_table_data        = nil
+        @joining_table_name     = nil
+        @joining_table_data     = nil
         @column_on_table        = nil
-        @column_on_join_table   = nil
+        @column_on_joining_table   = nil
         @order                  = :asc
         @query_result           = []
     end
@@ -24,10 +24,8 @@ class MySqliteRequest
         self.set_type_of_request(:select)
         if column_names.is_a?(String)
             @selected_columns += column_names.split(", ")
-            # puts "I'm a string #{column_names.split(", ")}"
         else column_names.is_a?(Array)
             @selected_columns += column_names
-            # puts "I'm an array #{column_names}"
         end
         self
     end
@@ -56,9 +54,9 @@ class MySqliteRequest
             original_row_hash = original_row.to_hash
             combined_values_array = []
             combined_values_array += original_row_hash.values
-            @join_table_data.each do |joining_row|
+            @joining_table_data.each do |joining_row|
                 joining_row_hash = joining_row.to_hash
-                if joining_row_hash[@column_on_join_table] == original_row_hash[@column_on_table]
+                if joining_row_hash[@column_on_joining_table] == original_row_hash[@column_on_table]
                     combined_values_array += joining_row_hash.values
                 end
             end
@@ -67,14 +65,14 @@ class MySqliteRequest
         end
     end
 
-    def join(column_on_table, join_table_name, column_on_join_table)
-        @join_table_name = join_table_name
-        @join_table_data = CSV.parse(File.read(@join_table_name), headers: true)
+    def join(column_on_table, joining_table_name, column_on_joining_table)
+        @joining_table_name = joining_table_name
+        @joining_table_data = CSV.parse(File.read(@joining_table_name), headers: true)
         @column_on_table = column_on_table
-        @column_on_join_table = column_on_join_table
+        @column_on_joining_table = column_on_joining_table
 
         table_headers_array = CSV.read(@table_name, headers: true).headers
-        join_table_headers_array = CSV.read(@join_table_name, headers: true).headers
+        join_table_headers_array = CSV.read(@joining_table_name, headers: true).headers
         combined_headers_array = []
         combined_headers_array += table_headers_array + join_table_headers_array
 
@@ -149,11 +147,11 @@ class MySqliteRequest
         puts    "Table name:           #{@table_name}"
         print   "Table data:          "
         p                              @table_data
-        puts    "Joining table name:   #{@join_table_name}"
+        puts    "Joining table name:   #{@joining_table_name}"
         print   "Joining table data:  "
-        p                              @join_table_data
+        p                              @joining_table_data
         puts    "Column on table:      #{@column_on_table}"
-        puts    "Column on join table: #{@column_on_join_table}"
+        puts    "Column on join table: #{@column_on_joining_table}"
         puts    "Order:                #{@order}"
         puts    "Query result          #{@query_result}"
 
