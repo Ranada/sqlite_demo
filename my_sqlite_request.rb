@@ -2,16 +2,16 @@ require 'csv'
 
 class MySqliteRequest
     def initialize
-        @type_of_request        = :none
-        @selected_columns       = []
-        @table_name             = nil
-        @table_data             = nil
-        @joining_table_name     = nil
-        @joining_table_data     = nil
-        @column_on_table        = nil
-        @column_on_joining_table   = nil
-        @order                  = :asc
-        @query_result           = []
+        @type_of_request            = :none
+        @selected_columns           = []
+        @table_name                 = nil
+        @table_data                 = nil
+        @joining_table_name         = nil
+        @joining_table_data         = nil
+        @column_on_table            = nil
+        @column_on_joining_table    = nil
+        @order                      = :asc
+        @query_result               = []
     end
 
     def from(table_name)
@@ -49,18 +49,20 @@ class MySqliteRequest
         self
     end
 
-    def add_rows_to_csv(joined_csv)
-        @table_data.each do |original_row|
-            original_row_hash = original_row.to_hash
-            combined_values_array = []
-            combined_values_array += original_row_hash.values
-            @joining_table_data.each do |joining_row|
-                joining_row_hash = joining_row.to_hash
-                if joining_row_hash[@column_on_joining_table] == original_row_hash[@column_on_table]
-                    combined_values_array += joining_row_hash.values
-                end
+    def add_joining_rows(combined_values_array, original_row)
+        @joining_table_data.each do |joining_row|
+            if joining_row.to_hash[@column_on_joining_table] == original_row.to_hash[@column_on_table]
+                combined_values_array += joining_row.to_hash.values
             end
-            p combined_values_array
+        end
+        combined_values_array
+    end
+
+    def add_rows(joined_csv)
+        @table_data.each do |original_row|
+            combined_values_array = []
+            combined_values_array += original_row.to_hash.values
+            combined_values_array = add_joining_rows(combined_values_array, original_row)
             joined_csv << combined_values_array
         end
     end
@@ -78,7 +80,7 @@ class MySqliteRequest
 
         CSV.open("new.csv", "a+", :row_sep => "\r\n") do |joined_csv|
             joined_csv << combined_headers_array
-            add_rows_to_csv(joined_csv)
+            add_rows(joined_csv)
         end
 
         self
