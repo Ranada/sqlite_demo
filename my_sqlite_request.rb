@@ -10,6 +10,8 @@ class MySqliteRequest
         @joining_table_data         = nil
         @column_on_table            = nil
         @column_on_joining_table    = nil
+        @joined_csv_name            = "new_join.csv"
+        @joined_csv_data            = nil
         @order                      = :asc
         @query_result               = []
     end
@@ -40,12 +42,30 @@ class MySqliteRequest
         end
     end
 
+    # def where(column_name, criteria)
+    #     @table_data.each do |row|
+    #         if row[column_name] == criteria
+    #             add_selected_columns(row.to_hash)
+    #         end
+    #     end
+    #     self
+    # end
+
     def where(column_name, criteria)
-        @table_data.each do |row|
-            if row[column_name] == criteria
-                add_selected_columns(row.to_hash)
+        if @joined_csv_data != nil
+            @joined_csv_data.each do |row|
+                if row[column_name] == criteria
+                    add_selected_columns(row.to_hash)
+                end
+            end
+        else
+            @table_data.each do |row|
+                if row[column_name] == criteria
+                    add_selected_columns(row.to_hash)
+                end
             end
         end
+
         self
     end
 
@@ -79,13 +99,14 @@ class MySqliteRequest
         @joining_table_data = CSV.parse(File.read(@joining_table_name), headers: true)
         @column_on_table = column_on_table
         @column_on_joining_table = column_on_joining_table
-
         combined_headers_array = add_combined_header_rows
 
-        CSV.open("new.csv", "a+", :row_sep => "\r\n") do |joined_csv|
+        CSV.open(@joined_csv_name, "a+", :row_sep => "\r\n") do |joined_csv|
             joined_csv << combined_headers_array
             add_rows(joined_csv)
         end
+
+        @joined_csv_data = CSV.parse(File.read(@joined_csv_name), headers: true)
 
         self
     end
@@ -158,8 +179,9 @@ class MySqliteRequest
         p                              @joining_table_data
         puts    "Column on table:      #{@column_on_table}"
         puts    "Column on join table: #{@column_on_joining_table}"
+        puts    "Joined csv name:      #{@joined_csv_name}"
         puts    "Order:                #{@order}"
-        puts    "Query result          #{@query_result}"
+        puts    "Query result:         #{@query_result}"
 
         # print_csv
     end
@@ -195,10 +217,11 @@ def _main()
 
     # JOIN
     request = request.from('nba_player_data.csv')
-    request = request.select('*')
-    # request.select(["name", "birth_date", "birth_state"])
-    request.join('name','nba_players_extra_info.csv', 'player')
-    request = request.where('name', 'Jerome Allen')
+    # request = request.select('*')
+    request.select(["name", "birth_date", "birth_state"])
+    request = request.join('name','nba_players_extra_info.csv', 'player')
+    # request = request.where('name', 'Jerome Allen')
+    request = request.where('year_start', '1990')
 
     request.run
 end
