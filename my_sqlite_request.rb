@@ -67,16 +67,20 @@ class MySqliteRequest
         end
     end
 
+    def add_combined_header_rows
+        table_headers_array = CSV.read(@table_name, headers: true).headers
+        join_table_headers_array = CSV.read(@joining_table_name, headers: true).headers
+        combined_headers_array = []
+        combined_headers_array += table_headers_array + join_table_headers_array
+    end
+
     def join(column_on_table, joining_table_name, column_on_joining_table)
         @joining_table_name = joining_table_name
         @joining_table_data = CSV.parse(File.read(@joining_table_name), headers: true)
         @column_on_table = column_on_table
         @column_on_joining_table = column_on_joining_table
 
-        table_headers_array = CSV.read(@table_name, headers: true).headers
-        join_table_headers_array = CSV.read(@joining_table_name, headers: true).headers
-        combined_headers_array = []
-        combined_headers_array += table_headers_array + join_table_headers_array
+        combined_headers_array = add_combined_header_rows
 
         CSV.open("new.csv", "a+", :row_sep => "\r\n") do |joined_csv|
             joined_csv << combined_headers_array
