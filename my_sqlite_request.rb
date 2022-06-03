@@ -111,11 +111,11 @@ class MySqliteRequest
     def order(order, column_name)
         if order == 'asc' or order == 'ascending'
             @order == :asc
+            @query_result = @query_result.sort_by { |key, value|  key[column_name]}
         elsif order == 'dsc' or order == 'descending'
             @order == :dsc
+            @query_result = @query_result.sort_by { |key, value|  key[column_name]}.reverse
         end
-
-        @query_result = @query_result.sort_by { |key, value|  key[column_name]}
 
         @query_result.each do |hash_element|
             print hash_element
@@ -241,7 +241,8 @@ def _main()
     # request = request.join('name','nba_players_extra_info.csv', 'player')
     # request = request.where('name', 'Jerome Allen')
     request = request.where('year_start', '1990')
-    request = request.order('asc', 'name')
+    # request = request.order('asc', 'name')
+    request = request.order('dsc', 'name')
     request.run
 end
 
