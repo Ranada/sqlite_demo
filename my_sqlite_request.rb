@@ -115,6 +115,8 @@ class MySqliteRequest
             @order == :dsc
         end
 
+        @query_result = @query_result.sort_by { |key, value|  key[column_name]}
+
         @query_result.each do |hash_element|
             print hash_element
             puts
@@ -195,7 +197,7 @@ class MySqliteRequest
     end
 
     def run
-        print_attributes
+        # print_attributes
     end
 
     def set_type_of_request(request_type)
