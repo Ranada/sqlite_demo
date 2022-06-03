@@ -1,4 +1,5 @@
 require 'csv'
+require 'byebug'
 
 class MySqliteRequest
     def initialize
@@ -33,23 +34,17 @@ class MySqliteRequest
     end
 
     def add_selected_columns(row)
+        filtered_row_hash = {}
         @selected_columns.each do |selected_column|
             if selected_column == '*'
-                @query_result << row
+                return @query_result << row
             else
-                @query_result << {selected_column => row[selected_column]}
+                filtered_row_hash[selected_column] = row[selected_column]
+                # @query_result << row.slice[selected_column]
             end
         end
+        return @query_result << filtered_row_hash
     end
-
-    # def where(column_name, criteria)
-    #     @table_data.each do |row|
-    #         if row[column_name] == criteria
-    #             add_selected_columns(row.to_hash)
-    #         end
-    #     end
-    #     self
-    # end
 
     def where(column_name, criteria)
         if @joined_csv_data != nil
@@ -79,11 +74,13 @@ class MySqliteRequest
     end
 
     def add_rows(joined_csv)
-        @table_data.each do |original_row|
+        index = 0
+        @table_data[index..-1].each do |original_row|
             combined_values_array = []
             combined_values_array += original_row.to_hash.values
             combined_values_array = add_joining_rows(combined_values_array, original_row)
             joined_csv << combined_values_array
+            index += 1
         end
     end
 
@@ -99,7 +96,7 @@ class MySqliteRequest
         @joining_table_data = CSV.parse(File.read(@joining_table_name), headers: true)
         @column_on_table = column_on_table
         @column_on_joining_table = column_on_joining_table
-        combined_headers_array = add_combined_header_rows
+        combined_headers_array = add_combined_header_rows()
 
         CSV.open(@joined_csv_name, "a+", :row_sep => "\r\n") do |joined_csv|
             joined_csv << combined_headers_array
@@ -112,6 +109,17 @@ class MySqliteRequest
     end
 
     def order(order, column_name)
+        if order == 'asc' or order == 'ascending'
+            @order == :asc
+        elsif order == 'dsc' or order == 'descending'
+            @order == :dsc
+        end
+
+        @query_result.each do |hash_element|
+            print hash_element
+            puts
+        end
+
         self
     end
 
@@ -199,6 +207,7 @@ class MySqliteRequest
     end
 end
 
+# debugger
 def _main()
     request = MySqliteRequest.new
 
@@ -212,17 +221,25 @@ def _main()
 
     # INSERT
     # request = request.insert('nba_player_data.csv')
-    # request = request.values({"name"=>"Neil Ranada", "year_start"=>"2008", "year_end"=>"2012", "position"=>"G", "height"=>"5-7", "weight"=>"150", "birth_date"=>"January 1, 1980", "college"=>"University of Florida"})
+    # request = request.values({"name"=>"Cahethel Dounou", "year_start"=>"2008", "year_end"=>"2012", "position"=>"G", "height"=>"5-7", "weight"=>"150", "birth_date"=>"January 1, 1980", "college"=>"University of Florida"})
     # request = request.values({"year_start"=>"2008", "name"=>"Gandalf the Grey", "year_end"=>"2012", "position"=>"G", "height"=>"5-7", "weight"=>"150", "birth_date"=>"January 1, 1980", "college"=>"University of Florida"})
 
     # JOIN
+    # request = request.from('nba_player_data.csv')
+    # request = request.select('*')
+    # request.select(["name", "birth_date", "birth_state"])
+    # request = request.join('name','nba_players_extra_info.csv', 'player')
+    # request = request.where('name', 'Jerome Allen')
+    # request = request.where('year_start', '1990')
+
+    # Order
     request = request.from('nba_player_data.csv')
     # request = request.select('*')
     request.select(["name", "birth_date", "birth_state"])
-    request = request.join('name','nba_players_extra_info.csv', 'player')
+    # request = request.join('name','nba_players_extra_info.csv', 'player')
     # request = request.where('name', 'Jerome Allen')
     request = request.where('year_start', '1990')
-
+    request = request.order('asc', 'name')
     request.run
 end
 
