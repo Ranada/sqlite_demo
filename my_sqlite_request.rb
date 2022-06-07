@@ -23,16 +23,6 @@ class MySqliteRequest
         self
     end
 
-    def select(column_names)
-        self.set_type_of_request(:select)
-        if column_names.is_a?(String)
-            @selected_columns += column_names.split(", ")
-        else column_names.is_a?(Array)
-            @selected_columns += column_names
-        end
-        self
-    end
-
     def add_selected_columns(row)
         filtered_row_hash = {}
         @selected_columns.each do |selected_column|
@@ -178,6 +168,14 @@ class MySqliteRequest
         end
     end
 
+    def set_type_of_request(request_type)
+        if @type_of_request == :none || @type_of_request == request_type
+            @type_of_request = request_type
+        else
+            raise "Advisory: Type is already set to #{@type_of_request} (request type => #{request_type})"
+        end
+    end
+
     def print_attributes
         puts    "Type of request:      #{@type_of_request}"
         puts    "Selected columns:     #{@selected_columns}"
@@ -199,13 +197,23 @@ class MySqliteRequest
     def run
         # print_attributes
     end
+end
 
-    def set_type_of_request(request_type)
-        if @type_of_request == :none || @type_of_request == request_type
-            @type_of_request = request_type
-        else
-            raise "Advisory: Type is already set to #{@type_of_request} (request type => #{request_type})"
+class CommandExecution
+end
+
+class CommandHistory
+end
+
+class Select
+    def execute(column_names)
+        self.set_type_of_request(:select)
+        if column_names.is_a?(String)
+            @selected_columns += column_names.split(", ")
+        else column_names.is_a?(Array)
+            @selected_columns += column_names
         end
+        self
     end
 end
 
@@ -235,15 +243,15 @@ def _main()
     # request = request.where('year_start', '1990')
 
     # Order
-    request = request.from('nba_player_data.csv')
-    # request = request.select('*')
-    request.select(["name", "birth_date", "birth_state"])
-    # request = request.join('name','nba_players_extra_info.csv', 'player')
-    # request = request.where('name', 'Jerome Allen')
-    request = request.where('year_start', '1990')
-    # request = request.order('asc', 'name')
-    request = request.order('dsc', 'name')
-    request.run
+    # request = request.from('nba_player_data.csv')
+    # # request = request.select('*')
+    # request.select(["name", "birth_date", "birth_state"])
+    # # request = request.join('name','nba_players_extra_info.csv', 'player')
+    # # request = request.where('name', 'Jerome Allen')
+    # request = request.where('year_start', '1990')
+    # # request = request.order('asc', 'name')
+    # request = request.order('dsc', 'name')
+    # request.run
 end
 
 _main()
