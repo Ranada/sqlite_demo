@@ -17,8 +17,18 @@ class Parse
     def run(cli_entry)
         # print cli_array = cli_entry.split(" ")
         p cli_array = cli_entry.split(" ")
-        p cli_array.map { |word| FormatWord.new.run(word)}
+        p ValidateQuery.new.run(cli_array)
+        # p cli_array.map { |word| FormatWord.new.run(word)}
         puts
+    end
+end
+
+class ValidateQuery
+    def run(cli_array)
+        last_word_last_char = cli_array[-1][-1]
+        if last_word_last_char != ';'
+            raise "Syntax Error: Your query must end with a `;`"
+        end
     end
 end
 
