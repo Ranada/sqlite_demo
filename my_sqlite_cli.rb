@@ -3,16 +3,34 @@ require "readline"
 class MySqliteQueryCli
     def run!
         while line = Readline.readline("my_sqlite_query_cli> ", true)
-            print Readline::HISTORY
-            print Parse.new.run(line)
+            Readline::HISTORY
+            Parse.new.run(line)
+            line
         end
     end
 end
 
 class Parse
+    def initialize
+        @cli_hash = {}
+    end
     def run(cli_entry)
-        print "Cli entry: #{cli_entry.split(" ")}\n"
+        # print cli_array = cli_entry.split(" ")
+        p cli_array = cli_entry.split(" ")
+        p cli_array.map { |word| FormatWord.new.run(word)}
+        puts
     end
 end
 
-cli_entry = MySqliteQueryCli.new.run!
+class FormatWord
+    def run(word)
+        last_char = word[-1]
+        if !(last_char.match?(/[A-Za-z]/))
+            word.chomp(last_char)
+        else
+            word
+        end
+    end
+end
+
+MySqliteQueryCli.new.run!
