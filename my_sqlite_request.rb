@@ -4,180 +4,109 @@ require 'byebug'
 
 class MySqliteRequest
     def initialize
-        @type_of_request            = :none
-        @selected_columns           = []
-        @table_name                 = nil
-        @table_data                 = nil
-        @joining_table_name         = nil
-        @joining_table_data         = nil
-        @column_on_table            = nil
-        @column_on_joining_table    = nil
-        @joined_csv_name            = "new_join.csv"
-        @joined_csv_data            = nil
-        @order                      = :asc
-        @query_result               = []
+        @command_history = []
     end
 
-    def from(table_name)
+    def run
+    end
+end
+
+class FromCommand
+    def initialize(current_table)
+        @current_table = current_table
+    end
+
+    def run
+    end
+end
+
+class SelectCommand
+    def initialize(selected_columns)
+        @selected_columns = selected_columns
+    end
+
+    def run
+    end
+end
+
+
+class WhereCommand
+    def initialize(column_name, criteria)
+        @column_name
+    end
+
+    def run
+    end
+end
+
+class InsertCommand
+    def initialize(table_name)
         @table_name = table_name
-        @table_data = CSV.parse(File.read(@table_name), headers: true)
-        self
     end
 
-    def add_selected_columns(row)
-        filtered_row_hash = {}
-        @selected_columns.each do |selected_column|
-            if selected_column == '*'
-                return @query_result << row
-            else
-                filtered_row_hash[selected_column] = row[selected_column]
-                # @query_result << row.slice[selected_column]
-            end
-        end
-        return @query_result << filtered_row_hash
+    def run
+    end
+end
+
+class ValuesCommand
+    def initialize(data_hash)
+        @data_hash = data_hash
     end
 
-    def where(column_name, criteria)
-        if @joined_csv_data != nil
-            @joined_csv_data.each do |row|
-                if row[column_name] == criteria
-                    add_selected_columns(row.to_hash)
-                end
-            end
-        else
-            @table_data.each do |row|
-                if row[column_name] == criteria
-                    add_selected_columns(row.to_hash)
-                end
-            end
-        end
+    def run
+    end
+end
 
-        self
+class JoinCommand
+    def initialize(column_on_db_a, filename_db_b, column_on_db_b)
+        @column_on_db_a = column_on_db_a
+        @filename_db_b = filename_db_b
+        @column_on_db_b = column_on_db_b
     end
 
-    def add_joining_rows(combined_values_array, original_row)
-        @joining_table_data.each do |joining_row|
-            if joining_row.to_hash[@column_on_joining_table] == original_row.to_hash[@column_on_table]
-                combined_values_array += joining_row.to_hash.values
-            end
-        end
-        combined_values_array
+    def run
+    end
+end
+
+class OrderCommand
+    def initialize(order, column_name)
+        @order = :asc
+        @column_name = column_name
     end
 
-    def add_rows(joined_csv)
-        index = 0
-        @table_data[index..-1].each do |original_row|
-            combined_values_array = []
-            combined_values_array += original_row.to_hash.values
-            combined_values_array = add_joining_rows(combined_values_array, original_row)
-            joined_csv << combined_values_array
-            index += 1
-        end
+    def run
     end
+end
 
-    def add_combined_header_rows
-        table_headers_array = CSV.read(@table_name, headers: true).headers
-        join_table_headers_array = CSV.read(@joining_table_name, headers: true).headers
-        combined_headers_array = []
-        combined_headers_array += table_headers_array + join_table_headers_array
-    end
-
-    def join(column_on_table, joining_table_name, column_on_joining_table)
-        @joining_table_name = joining_table_name
-        @joining_table_data = CSV.parse(File.read(@joining_table_name), headers: true)
-        @column_on_table = column_on_table
-        @column_on_joining_table = column_on_joining_table
-        combined_headers_array = add_combined_header_rows()
-
-        CSV.open(@joined_csv_name, "a+", :row_sep => "\r\n") do |joined_csv|
-            joined_csv << combined_headers_array
-            add_rows(joined_csv)
-        end
-
-        @joined_csv_data = CSV.parse(File.read(@joined_csv_name), headers: true)
-
-        self
-    end
-
-    def order(order, column_name)
-        if order == 'asc' or order == 'ascending'
-            @order == :asc
-            @query_result = @query_result.sort_by { |key, value|  key[column_name]}
-        elsif order == 'dsc' or order == 'descending'
-            @order == :dsc
-            @query_result = @query_result.sort_by { |key, value|  key[column_name]}.reverse
-        end
-
-        @query_result.each do |hash_element|
-            print hash_element
-            puts
-        end
-
-        self
-    end
-
-    def insert(table_name)
-        self.set_type_of_request(:insert)
+class UpdateCommand
+    def initialize(table_name)
         @table_name = table_name
-        self
     end
 
-    def validate_hash_keys(headers_array, keys_array)
-        headers_array.each do |header_name|
-            if keys_array.none?(header_name)
-                raise "Advisory: Your input does not include \"#{header_name}\" category"
-                return
-            end
-        end
+    def run
+    end
+end
+
+class SetCommand
+    def initialize(hash_data)
+        @hash_data = hash_data
     end
 
-    def values(data)
-        headers_array = CSV.read(@table_name, headers: true).headers
-        keys_array = data.keys
-        validated_values_array = []
+    def run
+    end
+end
 
-        validate_hash_keys(headers_array, keys_array)
-
-        headers_array.each do |header_name|
-            validated_values_array << data[header_name]
-        end
-
-        CSV.open(@table_name, "a+", :row_sep => "\r\n") do |csv| # `:row_sep => "\r\n"` needed to append a input values to a new line
-                csv << validated_values_array
-        end
-
-        self
+class DeleteCommand
+    def initialize(selected_columns)
+        @selected_columns = selected_columns
     end
 
-    def update(table_name)
-        self.set_type_of_request(:update)
-        @table_name = table_name
-        self
+    def run
     end
+end
 
-    def set(data)
-        self
-    end
-
-    def delete
-        self.set_type_of_request(:delete)
-    end
-
-    def print_csv(table_data)
-        table_data.each do |row|
-            p row.to_hash
-        end
-    end
-
-    def set_type_of_request(request_type)
-        if @type_of_request == :none || @type_of_request == request_type
-            @type_of_request = request_type
-        else
-            raise "Advisory: Type is already set to #{@type_of_request} (request type => #{request_type})"
-        end
-    end
-
-    def print_attributes
+class PrintCommand
+    def run
         puts    "Type of request:      #{@type_of_request}"
         puts    "Selected columns:     #{@selected_columns}"
         puts    "Table name:           #{@table_name}"
@@ -194,41 +123,13 @@ class MySqliteRequest
 
         # print_csv
     end
-
-    def run
-        # print_attributes
-    end
-end
-
-class CommandExecution
-end
-
-class CommandHistory
-end
-
-class Select
-    def execute(column_names)
-        self.set_type_of_request(:select)
-        if column_names.is_a?(String)
-            @selected_columns += column_names.split(", ")
-        else column_names.is_a?(Array)
-            @selected_columns += column_names
-        end
-        self
-    end
 end
 
 # debugger
-def _main()
-    request = MySqliteRequest.new
+# def _main()
+#     request = MySqliteRequest.new
 
-    # SELECT
-    # request = request.from('nba_player_data.csv')
-    # request = request.select('name')
-    # request = request.select(["name", "birth_date"])
-    # request = request.select('*')
-    # request = request.where('name', 'Jerome Allen')
-    # request = request.where('year_start', '1990')
+
 
     # INSERT
     # request = request.insert('nba_player_data.csv')
@@ -253,7 +154,7 @@ def _main()
     # # request = request.order('asc', 'name')
     # request = request.order('dsc', 'name')
     # request.run
-end
+# end
 
 # _main()
 # Expect array of hashes: [{"name" => "Jerome Allen"]
