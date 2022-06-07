@@ -15,7 +15,6 @@ class Parse
         @cli_hash = {}
     end
     def run(cli_entry)
-        # print cli_array = cli_entry.split(" ")
         p cli_array = cli_entry.split(" ")
         p ValidateQuery.new.run(cli_array)
         # p cli_array.map { |word| FormatWord.new.run(word)}

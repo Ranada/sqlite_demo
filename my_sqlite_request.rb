@@ -1,3 +1,4 @@
+require_relative 'my_sqlite_cli.rb'
 require 'csv'
 require 'byebug'
 
@@ -254,5 +255,7 @@ def _main()
     # request.run
 end
 
-_main()
+# _main()
 # Expect array of hashes: [{"name" => "Jerome Allen"]
+
+MySqliteQueryCli.new.run!
