@@ -116,6 +116,19 @@ class Where
     end
 end
 
+class Join
+    attr_reader :join_table
+
+    def initialize
+        @join_table = ""
+    end
+
+    def run(cli_array, index)
+        @join_table += cli_array[index + 1]
+        @join_table = Format.new.run(@join_table)
+    end
+end
+
 class GetKeywordHash
     attr_reader :hash
 
@@ -139,6 +152,8 @@ class GetKeywordHash
             # Check where
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
             # Check join on
+            @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
+            
             # Check delete
         end
         print @hash
