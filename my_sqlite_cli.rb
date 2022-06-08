@@ -129,6 +129,19 @@ class Join
     end
 end
 
+class On
+    attr_reader :on
+
+    def initialize
+        @on = []
+    end
+
+    def run(cli_array, index)
+        @on += cli_array[index + 1].split('=')
+        @on = @on.map { |word| Format.new.run(word)}
+    end
+end
+
 class GetKeywordHash
     attr_reader :hash
 
@@ -151,9 +164,10 @@ class GetKeywordHash
             @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
             # Check where
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
-            # Check join on
+            # Check join
             @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
-            
+            # Check on
+            @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
             # Check delete
         end
         print @hash
