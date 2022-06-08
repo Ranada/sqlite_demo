@@ -27,7 +27,7 @@ class ValidateQuery
     end
 end
 
-class ParseSelect
+class Select
     attr_reader :selected_columns
 
     def initialize
@@ -37,14 +37,25 @@ class ParseSelect
     def run(cli_array, index)
         select_args_start = index + 1
         cli_array[select_args_start..-1].each do |word|
-            word
             if word[-1] != ','
                 @selected_columns << word
-                return {"SELECT" => @selected_columns}
+                return @selected_columns
             else
                 @selected_columns << word.chomp(',')
             end
         end
+    end
+end
+
+class From
+    attr_reader :current_table
+
+    def initialize
+        @current_table = ""
+    end
+
+    def run(cli_array, index)
+        @current_table += cli_array[index + 1].chomp(';')
     end
 end
 
@@ -58,14 +69,16 @@ class GetKeywordHash
     def run(validated_cli_array)
         validated_cli_array.each_with_index do |word, index|
             # Check select
-            p @hash = ParseSelect.new.run(validated_cli_array, index) if word.upcase == "SELECT"
+            p @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
             # Check from
+            p @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             # Check insert
             # Check update
             # Check where
             # Check join on
             # Check delete
         end
+        p @hash
     end
 end
 
