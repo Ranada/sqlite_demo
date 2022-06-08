@@ -23,7 +23,11 @@ class ValidateQuery
         if last_word_last_char != ';'
             raise "Syntax Error: Your query must end with a `;`"
         end
-        cli_array
+        cli_array.each_with_index do |word, index|
+            if word.upcase == "INSERT" && cli_array[index + 1].upcase != "INTO"
+                raise "Syntax error: keyword `INSERT` should be followed by `INTO`"
+            end
+        end
     end
 end
 
@@ -59,6 +63,18 @@ class From
     end
 end
 
+class Insert
+    attr_reader :insert_table
+
+    def initialize
+        @insert_table = ""
+    end
+
+    def run(cli_array, index)
+        @insert_table += cli_array[index + 2]
+    end
+end
+
 class GetKeywordHash
     attr_reader :hash
 
@@ -73,6 +89,7 @@ class GetKeywordHash
             # Check from
             p @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             # Check insert
+            p @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             # Check update
             # Check where
             # Check join on
