@@ -75,6 +75,22 @@ class Insert
     end
 end
 
+class Values
+    attr_reader :values
+
+    def initialize
+        @values = []
+    end
+
+    def run(cli_array, index)
+        values_args_start = index + 1
+        cli_array[values_args_start..-1].each do |word|
+            @values << Format.new.run(word)
+        end
+        @values
+    end
+end
+
 class GetKeywordHash
     attr_reader :hash
 
@@ -85,25 +101,33 @@ class GetKeywordHash
     def run(validated_cli_array)
         validated_cli_array.each_with_index do |word, index|
             # Check select
-            p @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
+            @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
             # Check from
-            p @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
+            @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             # Check insert
-            p @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            # Check Values
+            p @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
             # Check update
             # Check where
             # Check join on
             # Check delete
         end
-        p @hash
+        print @hash
+        puts
     end
 end
 
-class FormatWord
+class Format
     def run(word)
+        word = word.chomp(',')
+        word = word.chomp(';')
+        first_char = word[0]
         last_char = word[-1]
         if !(last_char.match?(/[A-Za-z]/))
             word.chomp(last_char)
+        elsif !(first_char.match?(/[A-Za-z]/))
+            word = word[1..-1]
         else
             word
         end
