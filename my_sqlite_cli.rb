@@ -1,21 +1,17 @@
 require "readline"
 
 class MySqliteQueryCli
-    attr_reader :hash
-
-    def initialize
-        @hash = {}
-    end
     def run!
         while cli_entry = Readline.readline("my_sqlite_query_cli> ", true)
             Readline::HISTORY
-            cli_array = Parse.new.run(cli_entry)
-            validated_array = ValidateQuery.new.run(cli_array)
+            cli_array = ParseCli.new.run(cli_entry)
+            validated_cli_array = ValidateQuery.new.run(cli_array)
+            GetKeywordHash.new.run(validated_cli_array)
         end
     end
 end
 
-class Parse
+class ParseCli
     def run(cli_entry)
         cli_entry.split(" ")
     end
@@ -27,13 +23,42 @@ class ValidateQuery
         if last_word_last_char != ';'
             raise "Syntax Error: Your query must end with a `;`"
         end
+        cli_array
     end
 end
 
-class GetQueryHash
-    def run(cli_array)
-        cli_array.each_with_index do |word, index|
+class ParseSelect
+    attr_reader :selected_columns
+
+    def initialize
+        @selected_columns = []
+    end
+
+    def run(cli_array, index)
+        select_args_start = index + 1
+        cli_array[select_args_start..-1].each do |word|
+            word
+            if word[-1] != ','
+                @selected_columns << word
+                return {"SELECT" => @selected_columns}
+            else
+                @selected_columns << word.chomp(',')
+            end
+        end
+    end
+end
+
+class GetKeywordHash
+    attr_reader :hash
+
+    def initialize
+        @hash = {}
+    end
+
+    def run(validated_cli_array)
+        validated_cli_array.each_with_index do |word, index|
             # Check select
+            p @hash = ParseSelect.new.run(validated_cli_array, index) if word.upcase == "SELECT"
             # Check from
             # Check insert
             # Check update
