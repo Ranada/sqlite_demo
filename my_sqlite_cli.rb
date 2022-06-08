@@ -1,24 +1,23 @@
 require "readline"
 
 class MySqliteQueryCli
+    attr_reader :hash
+
+    def initialize
+        @hash = {}
+    end
     def run!
-        while line = Readline.readline("my_sqlite_query_cli> ", true)
+        while cli_entry = Readline.readline("my_sqlite_query_cli> ", true)
             Readline::HISTORY
-            Parse.new.run(line)
-            line
+            cli_array = Parse.new.run(cli_entry)
+            validated_array = ValidateQuery.new.run(cli_array)
         end
     end
 end
 
 class Parse
-    def initialize
-        @cli_hash = {}
-    end
     def run(cli_entry)
-        p cli_array = cli_entry.split(" ")
-        p ValidateQuery.new.run(cli_array)
-        # p cli_array.map { |word| FormatWord.new.run(word)}
-        puts
+        cli_entry.split(" ")
     end
 end
 
@@ -27,6 +26,20 @@ class ValidateQuery
         last_word_last_char = cli_array[-1][-1]
         if last_word_last_char != ';'
             raise "Syntax Error: Your query must end with a `;`"
+        end
+    end
+end
+
+class GetQueryHash
+    def run(cli_array)
+        cli_array.each_with_index do |word, index|
+            # Check select
+            # Check from
+            # Check insert
+            # Check update
+            # Check where
+            # Check join on
+            # Check delete
         end
     end
 end

@@ -4,7 +4,7 @@ require 'byebug'
 
 class MySqliteRequest
     def initialize
-        @command_history = []
+        @cli_hash  = hash
     end
 
     def run
