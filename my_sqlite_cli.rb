@@ -91,6 +91,31 @@ class Values
     end
 end
 
+class Update
+    attr_reader :update_table
+
+    def initialize
+        @update_table = ""
+    end
+
+    def run(cli_array, index)
+        @update_table += cli_array[index + 1]
+    end
+end
+
+class Where
+    attr_reader :where
+
+    def initialize
+        @where = []
+    end
+
+    def run(cli_array, index)
+        @where += cli_array[index + 1].split('=')
+        @where = @where.map { |word| Format.new.run(word)}
+    end
+end
+
 class GetKeywordHash
     attr_reader :hash
 
@@ -106,10 +131,13 @@ class GetKeywordHash
             @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             # Check insert
             @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            # Check keys
             # Check Values
-            p @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
+            @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
             # Check update
+            @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
             # Check where
+            @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
             # Check join on
             # Check delete
         end
@@ -124,9 +152,9 @@ class Format
         word = word.chomp(';')
         first_char = word[0]
         last_char = word[-1]
-        if !(last_char.match?(/[A-Za-z]/))
+        if !(last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/))
             word.chomp(last_char)
-        elsif !(first_char.match?(/[A-Za-z]/))
+        elsif !(first_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/))
             word = word[1..-1]
         else
             word
