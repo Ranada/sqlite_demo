@@ -1,3 +1,4 @@
+require_relative "my_sqlite_request.rb"
 require "readline"
 
 class MySqliteQueryCli
@@ -6,7 +7,9 @@ class MySqliteQueryCli
             Readline::HISTORY
             cli_array = ParseCli.new.run(cli_entry)
             validated_cli_array = ValidateQuery.new.run(cli_array)
-            GetKeywordHash.new.run(validated_cli_array)
+            request_hash = GetKeywordHash.new.run(validated_cli_array)
+            request = MySqliteRequest.new(request_hash)
+            request.run
         end
     end
 end
@@ -182,7 +185,7 @@ class Keywords
 end
 
 class GetKeywordHash
-    attr_reader :hash
+    attr_accessor :hash
 
     def initialize
         @hash = {}
@@ -201,8 +204,7 @@ class GetKeywordHash
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
             # Check delete
         end
-        print @hash
-        puts
+        @hash
     end
 end
 

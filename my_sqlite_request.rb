@@ -1,13 +1,16 @@
-require_relative 'my_sqlite_cli.rb'
+# require_relative 'my_sqlite_cli.rb'
 require 'csv'
 require 'byebug'
 
 class MySqliteRequest
-    def initialize
-        @cli_hash  = hash
+    attr_accessor :request_hash
+
+    def initialize(request_hash)
+        @request_hash = request_hash
     end
 
     def run
+        print "SUCCESS: #{@request_hash}"
     end
 end
 
@@ -158,5 +161,3 @@ end
 
 # _main()
 # Expect array of hashes: [{"name" => "Jerome Allen"]
-
-MySqliteQueryCli.new.run!
