@@ -1,18 +1,20 @@
-require 'csv'
+require_relative "process_csv.rb"
 
 class MySqliteRequest
     attr_accessor :request_hash
 
     def initialize(request_hash)
         @request_hash = request_hash
+        @query_result = []
     end
 
     def run
         print @request_hash
         puts
         if @request_hash["SELECT"] != nil
-            SelectCommand.new(@request_hash["SELECT"]).run
+            SelectCommand.new(@request_hash)
             FromCommand.new(@request_hash["FROM"]).run
+            ProcessCsv.new.run
         end
     end
 end
@@ -40,7 +42,6 @@ class SelectCommand
         p "SELECTED COLUMNS #{self.selected_columns}"
     end
 end
-
 
 class WhereCommand
     def initialize(column_name, criteria)
