@@ -9,7 +9,7 @@ class MySqliteQueryCli
             validated_cli_array = ValidateQuery.new.run(cli_array)
             request_hash = GetKeywordHash.new.run(validated_cli_array)
             request = MySqliteRequest.new(request_hash)
-            request.run
+            RouteRequest.new.run(request)
         end
     end
 end

@@ -20,20 +20,25 @@ class MySqliteRequest
 
     def run
         PrintCommand.new.run(self)
-        # ProcessCsv.new.run(self.current_table)
-        SelectCommand.new(self.selected_columns).run if self.query_type == "SELECT"
     end
 end
 
-class SelectCommand
-    attr_reader :selected_columns
-
-    def initialize(selected_columns)
-        @selected_columns = selected_columns
+class RouteRequest
+    def run(request)
+        SelectProcess.new.run(request) if request.query_type == "SELECT"
     end
+end
 
-    def run
-        p "SELECTED COLUMNS #{self.selected_columns}"
+class SelectProcess
+    # attr_reader :selected_columns
+
+    # def initialize(selected_columns)
+    #     @selected_columns = selected_columns
+    # end
+
+    def run(request)
+        p "SELECTED COLUMNS #{request.selected_columns}"
+        p "FROM TABLE #{request.current_table}"
     end
 end
 
