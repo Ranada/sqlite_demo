@@ -1,21 +1,37 @@
 require_relative "process_csv.rb"
 
 class MySqliteRequest
-    attr_accessor :request_hash
+    attr_reader :selected_columns, :current_table, :insert_table, :keys, :values, :update_table, :where, :join_table, :on, :query_result
 
     def initialize(request_hash)
-        @request_hash = request_hash
-        @query_result = []
+        @selected_columns   = request_hash["SELECT"]
+        @current_table      = request_hash["FROM"]
+        @insert_table       = request_hash["INSERT"]
+        @keys               = request_hash["KEYS"]
+        @values             = request_hash["VALUES"]
+        @update_table       = request_hash["UPDATE"]
+        @where              = request_hash["WHERE"]
+        @join_table         = request_hash["JOIN"]
+        @on                 = request_hash["ON"]
+        @query_result       = []
+    end
+
+    def print_attributes
+        puts "Selected columns: #{@selected_columns}"
+        puts "Current table:    #{@current_table}"
+        puts "Insert table:     #{@insert_table}"
+        puts "Keys:             #{@keys}"
+        puts "Values:           #{@values}"
+        puts "Update table:     #{@update_table}"
+        puts "Where:            #{@where}"
+        puts "Join_table:       #{@join_table}"
+        puts "On:               #{@on}"
+        puts "Query result:     #{@query_result}"
     end
 
     def run
-        print @request_hash
-        puts
-        if @request_hash["SELECT"] != nil
-            SelectCommand.new(@request_hash)
-            FromCommand.new(@request_hash["FROM"]).run
-            ProcessCsv.new.run
-        end
+        self.print_attributes
+        ProcessCsv.new.run
     end
 end
 
