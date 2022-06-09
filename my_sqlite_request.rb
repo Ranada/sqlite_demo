@@ -39,6 +39,7 @@ class SelectProcess
     def run(request)
         p "SELECTED COLUMNS #{request.selected_columns}"
         p "FROM TABLE #{request.current_table}"
+        ProcessData.new.run(request)
     end
 end
 
@@ -131,6 +132,8 @@ end
 
 class PrintCommand
     def run(request)
+        puts "-----------------------------------------------"
+        puts "REQUEST ATTRIBUTES"
         puts "Query type:       #{request.query_type}"
         puts "Selected columns: #{request.selected_columns}"
         puts "Current table:    #{request.current_table}"
@@ -143,5 +146,7 @@ class PrintCommand
         puts "Join_table:       #{request.join_table}"
         puts "On:               #{request.on}"
         puts "Query result:     #{request.query_result}"
+        puts "-----------------------------------------------"
+        puts
     end
 end

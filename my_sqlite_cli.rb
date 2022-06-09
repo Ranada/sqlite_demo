@@ -9,6 +9,7 @@ class MySqliteQueryCli
             validated_cli_array = ValidateQuery.new.run(cli_array)
             request_hash = GetKeywordHash.new.run(validated_cli_array)
             request = MySqliteRequest.new(request_hash)
+            request.run
             RouteRequest.new.run(request)
         end
     end
@@ -215,14 +216,18 @@ class Where
     attr_reader :where
 
     def initialize
-        @where = []
+        @where = {}
     end
 
     def run(cli_array, index)
-        puts
-        p @where += cli_array[index + 1].split('=')
-        p @where = @where.map { |word| Format.new.run(word)}
-        puts
+        where_args_start = index + 1
+        arg = cli_array[where_args_start..-1].join(' ')
+        column_name = arg.match(/([\S\s]+)\s*=\s*/).captures[0]
+        criteria = arg.match(/\s*=\s*([\S\s]+)/).captures[0]
+        column_name = Format.new.run(column_name)
+        criteria = Format.new.run(criteria)
+        self.where[column_name] = criteria
+        self.where
     end
 end
 
