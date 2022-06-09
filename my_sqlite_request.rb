@@ -20,7 +20,7 @@ class MySqliteRequest
 
     def run
         PrintCommand.new.run(self)
-        ProcessCsv.new.run
+        ProcessCsv.new.run(self.current_table)
     end
 end
 

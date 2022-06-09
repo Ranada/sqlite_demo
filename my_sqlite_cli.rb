@@ -44,6 +44,12 @@ class ValidateQuery
     end
 end
 
+class QueryType
+    def run(cli_array, index)
+        cli_array[0].upcase
+    end
+end
+
 class Select
     attr_reader :selected_columns
 
@@ -222,14 +228,15 @@ class GetKeywordHash
 
     def run(validated_cli_array)
         validated_cli_array.each_with_index do |word, index|
-            @hash["QUERY_TYPE"] = word.upcase
+            p word
+            @hash["QUERY_TYPE"] = QueryType.new.run(validated_cli_array, index)
             @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
             @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
             @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
-            p @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
+            @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
             @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"

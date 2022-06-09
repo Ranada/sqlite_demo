@@ -7,9 +7,9 @@ class ProcessCsv
         @current_table_data = nil
     end
 
-    def run
+    def run(table_name)
         puts "Hello from CSV class!!!"
-        # @current_table_data = CSV.parse(File.read(@table_name), headers: true)
+        @current_table_data = CSV.parse(File.read(table_name), headers: true)
         # PrintCsvQuery.new.run(self.current_table_data)
     end
 end
