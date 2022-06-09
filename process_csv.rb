@@ -25,21 +25,22 @@ end
 
 class FilterColumns
     def run(row_hash, request)
-        filter_col_hash = {}
+        row_filtered_by_col_hash = {}
         request.selected_columns.each do |col_name|
-            filter_col_hash[col_name] = row_hash[col_name]
+            row_filtered_by_col_hash[col_name] = row_hash[col_name]
         end
-        FilterCriteria.new.run(filter_col_hash, request)
+        FilterCriteria.new.run(row_filtered_by_col_hash, request)
         # p filter_col_hash
     end
 end
 
 class FilterCriteria
-    def run(filter_col_hash, request)
-        p request.where
+    def run(row_filtered_by_col_hash, request)
+        column_name = request.where.keys.first
+        criteria = request.where.values.first
 
-        if filter_col_hash[col_name] == criteria
-            p filter_col_hash
+        if row_filtered_by_col_hash[column_name] == criteria
+            p row_filtered_by_col_hash
         end
     end
 end
