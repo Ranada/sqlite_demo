@@ -44,6 +44,32 @@ class ValidateQuery
     end
 end
 
+class GetKeywordHash
+    attr_accessor :hash
+
+    def initialize
+        @hash = {}
+    end
+
+    def run(validated_cli_array)
+        validated_cli_array.each_with_index do |word, index|
+            @hash["QUERY_TYPE"] = QueryType.new.run(validated_cli_array, index)
+            @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
+            @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
+            @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
+            @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
+            @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
+            @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
+            @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
+            @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
+            # Check delete
+        end
+        @hash
+    end
+end
+
 class QueryType
     def run(cli_array, index)
         cli_array[0].upcase
@@ -77,11 +103,11 @@ class From
     end
 
     def run(cli_array, index)
-        @current_table += cli_array[index + 1].chomp(';')
-        if (self.current_table[-4..-1].upcase != ".CSV")
-            @current_table += ".csv"
-        else
+        p @current_table += cli_array[index + 1].chomp(';')
+        if self.current_table.end_with?(".csv")
             @current_table
+        else
+            @current_table += ".csv"
         end
     end
 end
@@ -95,6 +121,21 @@ class Insert
 
     def run(cli_array, index)
         @insert_table += cli_array[index + 2]
+    end
+end
+
+class Keywords
+    attr_reader :keywords
+
+    def initialize
+        @keywords = ["SELECT",
+                     "FROM",
+                     "INSERT",
+                     "VALUES",
+                     "UPDATE",
+                     "WHERE",
+                     "JOIN",
+                     "ON"]
     end
 end
 
@@ -201,48 +242,6 @@ class On
 
     def run(cli_array, index)
         cli_array[index + 1]
-    end
-end
-
-class Keywords
-    attr_reader :keywords
-
-    def initialize
-        @keywords = ["SELECT",
-                     "FROM",
-                     "INSERT",
-                     "VALUES",
-                     "UPDATE",
-                     "WHERE",
-                     "JOIN",
-                     "ON"]
-    end
-end
-
-class GetKeywordHash
-    attr_accessor :hash
-
-    def initialize
-        @hash = {}
-    end
-
-    def run(validated_cli_array)
-        validated_cli_array.each_with_index do |word, index|
-            p word
-            @hash["QUERY_TYPE"] = QueryType.new.run(validated_cli_array, index)
-            @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
-            @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
-            @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
-            @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "INSERT"
-            @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
-            @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
-            @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
-            @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
-            @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
-            @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
-            # Check delete
-        end
-        @hash
     end
 end
 

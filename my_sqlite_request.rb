@@ -20,19 +20,8 @@ class MySqliteRequest
 
     def run
         PrintCommand.new.run(self)
-        ProcessCsv.new.run(self.current_table)
-    end
-end
-
-class FromCommand
-    attr_reader :current_table
-
-    def initialize(current_table)
-        @current_table = current_table
-    end
-
-    def run
-        p "CURRENT TABLE: #{self.current_table}"
+        # ProcessCsv.new.run(self.current_table)
+        SelectCommand.new(self.selected_columns).run if self.query_type == "SELECT"
     end
 end
 
@@ -45,6 +34,18 @@ class SelectCommand
 
     def run
         p "SELECTED COLUMNS #{self.selected_columns}"
+    end
+end
+
+class FromCommand
+    attr_reader :current_table
+
+    def initialize(current_table)
+        @current_table = current_table
+    end
+
+    def run
+        p "CURRENT TABLE: #{self.current_table}"
     end
 end
 
