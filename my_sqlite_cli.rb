@@ -96,6 +96,16 @@ class Select
     end
 end
 
+class AppendCsvExtension
+    def run(table_name)
+        if table_name.end_with?(".csv")
+            table_name
+        else
+            table_name += ".csv"
+        end
+    end
+end
+
 class From
     attr_accessor :current_table
     def initialize
@@ -103,12 +113,8 @@ class From
     end
 
     def run(cli_array, index)
-        p @current_table += cli_array[index + 1].chomp(';')
-        if self.current_table.end_with?(".csv")
-            @current_table
-        else
-            @current_table += ".csv"
-        end
+        @current_table += cli_array[index + 1].chomp(';')
+        self.current_table = AppendCsvExtension.new.run(self.current_table)
     end
 end
 
