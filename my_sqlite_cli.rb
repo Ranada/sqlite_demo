@@ -36,6 +36,10 @@ class ValidateQuery
             if word.upcase == "INSERT" && cli_array[index + 1].upcase != "INTO"
                 raise "Syntax error: keyword `INSERT` should be followed by `INTO`"
             end
+
+            if word.upcase == "SET" && cli_array[index + 1].each_char.none?('=')
+                raise "Syntax error: keyword `SET` should be followed by arguments using a format with equal sign and no spaces `column_name=criteria`"
+            end
         end
     end
 end
@@ -141,6 +145,19 @@ class Update
     end
 end
 
+class Set
+    attr_reader :set
+
+    def initialize
+        @set = []
+    end
+
+    def run(cli_array, index)
+        @set += cli_array[index + 1].split(/=|\s=\s/)
+        @set = @set.map { |word| Format.new.run(word)}
+    end
+end
+
 class Where
     attr_reader :where
 
@@ -149,8 +166,10 @@ class Where
     end
 
     def run(cli_array, index)
-        @where += cli_array[index + 1].split('=')
-        @where = @where.map { |word| Format.new.run(word)}
+        puts
+        p @where += cli_array[index + 1].split('=')
+        p @where = @where.map { |word| Format.new.run(word)}
+        puts
     end
 end
 
@@ -210,6 +229,7 @@ class GetKeywordHash
             @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
             @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
+            p @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
             @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"

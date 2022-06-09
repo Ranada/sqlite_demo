@@ -1,7 +1,7 @@
 require_relative "process_csv.rb"
 
 class MySqliteRequest
-    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :keys, :values, :update_table, :where, :join_table, :on, :query_result
+    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :keys, :values, :update_table, :set, :where, :join_table, :on, :query_result
 
     def initialize(request_hash)
         @query_type         = request_hash["QUERY_TYPE"]
@@ -11,6 +11,7 @@ class MySqliteRequest
         @keys               = request_hash["KEYS"]
         @values             = request_hash["VALUES"]
         @update_table       = request_hash["UPDATE"]
+        @set                = request_hash["SET"]
         @where              = request_hash["WHERE"]
         @join_table         = request_hash["JOIN"]
         @on                 = request_hash["ON"]
@@ -131,6 +132,7 @@ class PrintCommand
         puts "Keys:             #{request.keys}"
         puts "Values:           #{request.values}"
         puts "Update table:     #{request.update_table}"
+        puts "Set:              #{request.set}"
         puts "Where:            #{request.where}"
         puts "Join_table:       #{request.join_table}"
         puts "On:               #{request.on}"
