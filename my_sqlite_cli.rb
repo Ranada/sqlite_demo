@@ -26,6 +26,12 @@ class ValidateQuery
         if last_word_last_char != ';'
             raise "Syntax Error: Your query must end with a `;`"
         end
+
+        first_word = cli_array[0]
+        if ["SELECT", "INSERT", "UPDATE", "DELETE"].none?(first_word.upcase)
+            raise "Syntax Error: Your query should start with `SELECT`, `INSERT`, `UPDATE`, or `DELETE`"
+        end
+
         cli_array.each_with_index do |word, index|
             if word.upcase == "INSERT" && cli_array[index + 1].upcase != "INTO"
                 raise "Syntax error: keyword `INSERT` should be followed by `INTO`"
