@@ -75,6 +75,26 @@ class Insert
     end
 end
 
+class Keys
+    attr_reader :keys
+
+    def initialize
+        @keys = []
+    end
+
+    def run(cli_array, index)
+        input_keys_start = index + 3
+        if cli_array[input_keys_start][0] == '('
+            cli_array[input_keys_start..-1].each_with_index do |word, index|
+                if Keywords.new.keywords.include?(word)
+                    return @keys
+                end
+                p @keys << Format.new.run(word)
+            end
+        end
+    end
+end
+
 class Values
     attr_reader :values
 
@@ -84,10 +104,14 @@ class Values
 
     def run(cli_array, index)
         values_args_start = index + 1
-        cli_array[values_args_start..-1].each do |word|
-            @values << Format.new.run(word)
+        if cli_array[values_args_start][0] == '('
+            cli_array[values_args_start..-1].each_with_index do |word, index|
+                if Keywords.new.keywords.include?(word)
+                    return @values
+                end
+                p @values << Format.new.run(word)
+            end
         end
-        @values
     end
 end
 
@@ -137,8 +161,22 @@ class On
     end
 
     def run(cli_array, index)
-        @on += cli_array[index + 1].split('=')
-        @on = @on.map { |word| Format.new.run(word)}
+        cli_array[index + 1]
+    end
+end
+
+class Keywords
+    attr_reader :keywords
+
+    def initialize
+        @keywords = ["SELECT",
+                     "FROM",
+                     "INSERT",
+                     "VALUES",
+                     "UPDATE",
+                     "WHERE",
+                     "JOIN",
+                     "ON"]
     end
 end
 
@@ -151,22 +189,14 @@ class GetKeywordHash
 
     def run(validated_cli_array)
         validated_cli_array.each_with_index do |word, index|
-            # Check select
             @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
-            # Check from
             @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
-            # Check insert
             @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
-            # Check keys
-            # Check Values
+            @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
-            # Check update
             @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
-            # Check where
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
-            # Check join
             @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
-            # Check on
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
             # Check delete
         end
@@ -181,13 +211,16 @@ class Format
         word = word.chomp(';')
         first_char = word[0]
         last_char = word[-1]
+
+        if !(first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/))
+            word = word[1..-1]
+        end
+        
         if !(last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/))
             word.chomp(last_char)
-        elsif !(first_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/))
-            word = word[1..-1]
-        else
-            word
         end
+
+        word
     end
 end
 
