@@ -89,7 +89,7 @@ class Keys
                 if Keywords.new.keywords.include?(word)
                     return @keys
                 end
-                p @keys << Format.new.run(word)
+                @keys << Format.new.run(word)
             end
         end
     end
@@ -109,8 +109,9 @@ class Values
                 if Keywords.new.keywords.include?(word)
                     return @values
                 end
-                p @values << Format.new.run(word)
+                @values << Format.new.run(word)
             end
+            return @values
         end
     end
 end
@@ -205,22 +206,39 @@ class GetKeywordHash
     end
 end
 
+class FormatFirstChar
+    def run(word)
+         while word
+            first_char = word[0]
+            if (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/))
+                break
+            else
+                word = word[1..-1]
+            end
+        end
+        word
+    end
+end
+
+class FormatLastChar
+    def run(word)
+        while word
+            last_char = word[-1]
+            if (last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/) || last_char == '.')
+                break
+            else
+                word = word.chomp(last_char)
+            end
+        end
+        word
+    end
+end
+
 class Format
     def run(word)
-        word = word.chomp(',')
-        word = word.chomp(';')
-        first_char = word[0]
-        last_char = word[-1]
-
-        if !(first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/))
-            word = word[1..-1]
-        end
-        
-        if !(last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/))
-            word.chomp(last_char)
-        end
-
-        word
+        word = FormatFirstChar.new.run(word)
+        word = FormatLastChar.new.run(word)
+        return word
     end
 end
 
