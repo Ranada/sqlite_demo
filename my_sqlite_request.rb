@@ -1,9 +1,10 @@
 require_relative "process_csv.rb"
 
 class MySqliteRequest
-    attr_reader :selected_columns, :current_table, :insert_table, :keys, :values, :update_table, :where, :join_table, :on, :query_result
+    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :keys, :values, :update_table, :where, :join_table, :on, :query_result
 
     def initialize(request_hash)
+        @query_type         = request_hash["QUERY_TYPE"]
         @selected_columns   = request_hash["SELECT"]
         @current_table      = request_hash["FROM"]
         @insert_table       = request_hash["INSERT"]
@@ -16,21 +17,8 @@ class MySqliteRequest
         @query_result       = []
     end
 
-    def print_attributes
-        puts "Selected columns: #{@selected_columns}"
-        puts "Current table:    #{@current_table}"
-        puts "Insert table:     #{@insert_table}"
-        puts "Keys:             #{@keys}"
-        puts "Values:           #{@values}"
-        puts "Update table:     #{@update_table}"
-        puts "Where:            #{@where}"
-        puts "Join_table:       #{@join_table}"
-        puts "On:               #{@on}"
-        puts "Query result:     #{@query_result}"
-    end
-
     def run
-        self.print_attributes
+        PrintCommand.new.run(self)
         ProcessCsv.new.run
     end
 end
@@ -135,55 +123,17 @@ class DeleteCommand
 end
 
 class PrintCommand
-    def run
-        puts    "Type of request:      #{@type_of_request}"
-        puts    "Selected columns:     #{@selected_columns}"
-        puts    "Table name:           #{@table_name}"
-        print   "Table data:          "
-        p                              @table_data
-        puts    "Joining table name:   #{@joining_table_name}"
-        print   "Joining table data:  "
-        p                              @joining_table_data
-        puts    "Column on table:      #{@column_on_table}"
-        puts    "Column on join table: #{@column_on_joining_table}"
-        puts    "Joined csv name:      #{@joined_csv_name}"
-        puts    "Order:                #{@order}"
-        puts    "Query result:         #{@query_result}"
-
-        # print_csv
+    def run(request)
+        puts "Query type:       #{request.query_type}"
+        puts "Selected columns: #{request.selected_columns}"
+        puts "Current table:    #{request.current_table}"
+        puts "Insert table:     #{request.insert_table}"
+        puts "Keys:             #{request.keys}"
+        puts "Values:           #{request.values}"
+        puts "Update table:     #{request.update_table}"
+        puts "Where:            #{request.where}"
+        puts "Join_table:       #{request.join_table}"
+        puts "On:               #{request.on}"
+        puts "Query result:     #{request.query_result}"
     end
 end
-
-# debugger
-# def _main()
-#     request = MySqliteRequest.new
-
-
-
-    # INSERT
-    # request = request.insert('nba_player_data.csv')
-    # request = request.values({"name"=>"Cahethel Dounou", "year_start"=>"2008", "year_end"=>"2012", "position"=>"G", "height"=>"5-7", "weight"=>"150", "birth_date"=>"January 1, 1980", "college"=>"University of Florida"})
-    # request = request.values({"year_start"=>"2008", "name"=>"Gandalf the Grey", "year_end"=>"2012", "position"=>"G", "height"=>"5-7", "weight"=>"150", "birth_date"=>"January 1, 1980", "college"=>"University of Florida"})
-
-    # JOIN
-    # request = request.from('nba_player_data.csv')
-    # request = request.select('*')
-    # request.select(["name", "birth_date", "birth_state"])
-    # request = request.join('name','nba_players_extra_info.csv', 'player')
-    # request = request.where('name', 'Jerome Allen')
-    # request = request.where('year_start', '1990')
-
-    # Order
-    # request = request.from('nba_player_data.csv')
-    # # request = request.select('*')
-    # request.select(["name", "birth_date", "birth_state"])
-    # # request = request.join('name','nba_players_extra_info.csv', 'player')
-    # # request = request.where('name', 'Jerome Allen')
-    # request = request.where('year_start', '1990')
-    # # request = request.order('asc', 'name')
-    # request = request.order('dsc', 'name')
-    # request.run
-# end
-
-# _main()
-# Expect array of hashes: [{"name" => "Jerome Allen"]

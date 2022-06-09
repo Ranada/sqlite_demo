@@ -59,7 +59,7 @@ class From
     def initialize
         @current_table = ""
     end
-    
+
     def run(cli_array, index)
         @current_table += cli_array[index + 1].chomp(';')
         if (self.current_table[-4..-1].upcase != ".CSV")
@@ -197,6 +197,7 @@ class GetKeywordHash
 
     def run(validated_cli_array)
         validated_cli_array.each_with_index do |word, index|
+            @hash["QUERY_TYPE"] = word.upcase
             @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
             @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
