@@ -55,14 +55,18 @@ class Select
 end
 
 class From
-    attr_reader :current_table
-
+    attr_accessor :current_table
     def initialize
         @current_table = ""
     end
-
+    
     def run(cli_array, index)
         @current_table += cli_array[index + 1].chomp(';')
+        if (self.current_table[-4..-1].upcase != ".CSV")
+            @current_table += ".csv"
+        else
+            @current_table
+        end
     end
 end
 

@@ -1,6 +1,4 @@
-# require_relative 'my_sqlite_cli.rb'
 require 'csv'
-require 'byebug'
 
 class MySqliteRequest
     attr_accessor :request_hash
@@ -10,25 +8,36 @@ class MySqliteRequest
     end
 
     def run
-        print "SUCCESS: #{@request_hash}"
+        print @request_hash
+        puts
+        if @request_hash["SELECT"] != nil
+            SelectCommand.new(@request_hash["SELECT"]).run
+            FromCommand.new(@request_hash["FROM"]).run
+        end
     end
 end
 
 class FromCommand
+    attr_reader :current_table
+
     def initialize(current_table)
         @current_table = current_table
     end
 
     def run
+        p "CURRENT TABLE: #{self.current_table}"
     end
 end
 
 class SelectCommand
+    attr_reader :selected_columns
+
     def initialize(selected_columns)
         @selected_columns = selected_columns
     end
 
     def run
+        p "SELECTED COLUMNS #{self.selected_columns}"
     end
 end
 
