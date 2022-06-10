@@ -62,7 +62,7 @@ class OrderProcess
 
     def cli_entry_order(request)
         column_name = request.order[0]
-        order = request.order[1]
+        order = request.order[1].upcase
         order_asc(request, column_name) if order == "ASC"
         order_desc(request, column_name) if order == "DESC"
     end

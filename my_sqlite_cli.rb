@@ -44,8 +44,19 @@ class ValidateQuery
                 raise "Syntax error: keyword `SET` should be followed by arguments using a format with equal sign and no spaces `column_name=criteria`"
             end
 
-            if word.upcase == "ORDER" && (cli_array[index + 1] == nil || cli_array[index + 1].upcase != "BY")
-                raise "Syntax error: keyword `ORDER` should be followed by the word `BY` then either `ASC` or `DSC`"
+            if  word.upcase == "ORDER" && cli_array[index + 1] == nil
+                raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
+            end
+
+            if  word.upcase == "ORDER" && cli_array[index + 1].upcase != "BY"
+                raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
+            end
+
+            if  word.upcase == "ORDER" && ["ASC", "DESC"].none?(cli_array[index + 3].chomp(';').upcase)
+                p cli_array[index + 3].chomp(';').upcase
+                p cli_array[index + 3]
+                puts
+                raise "Syntax error: keywords `ORDER BY` then either `ASC` or `DESC`"
             end
         end
     end
