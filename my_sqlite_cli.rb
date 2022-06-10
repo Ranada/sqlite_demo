@@ -28,6 +28,10 @@ class ValidateQuery
             raise "Syntax Error: Your query must end with a `;`"
         end
 
+        p "VALIDATE"
+        p cli_array
+        p cli_array = cli_array.map { |word| Format.new.run(word)}
+
         first_word = cli_array[0]
         if ["SELECT", "INSERT", "UPDATE", "DELETE"].none?(first_word.upcase)
             raise "Syntax Error: Your query should start with `SELECT`, `INSERT`, `UPDATE`, or `DELETE`"
@@ -40,6 +44,10 @@ class ValidateQuery
 
             if word.upcase == "SET" && cli_array[index + 1].each_char.none?('=')
                 raise "Syntax error: keyword `SET` should be followed by arguments using a format with equal sign and no spaces `column_name=criteria`"
+            end
+
+            if word.upcase == "ORDER" && (cli_array[index + 1] == nil || cli_array[index + 1].upcase != "BY")
+                raise "Syntax error: keyword `ORDER` should be followed by the word `BY` then either `ASC` or `DSC`"
             end
         end
     end
@@ -57,6 +65,7 @@ class GetKeywordHash
             @hash["QUERY_TYPE"] = QueryType.new.run(validated_cli_array, index)
             @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
             @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
+            @hash["ORDER"] = Order.new.run(validated_cli_array, index) if word.upcase == "ORDER"
             @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
@@ -116,6 +125,27 @@ class From
     def run(cli_array, index)
         @current_table += cli_array[index + 1].chomp(';')
         self.current_table = AppendCsvExtension.new.run(self.current_table)
+    end
+end
+
+class Order
+    attr_reader :order
+
+    def initialize
+        @order = :ASC
+    end
+
+    def run(cli_array, index)
+        order_args_start = index + 1
+        if cli_array[order_args_start][0] == '('
+            cli_array[order_args_start..-1].each_with_index do |word, index|
+                if Keywords.new.keywords.include?(word)
+                    return @order
+                end
+                @order << Format.new.run(word)
+            end
+            return @order
+        end
     end
 end
 
@@ -258,9 +288,10 @@ end
 
 class FormatFirstChar
     def run(word)
+        puts word
          while word
             first_char = word[0]
-            if (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/))
+            if (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/) || first_char == '*')
                 break
             else
                 word = word[1..-1]
@@ -274,7 +305,7 @@ class FormatLastChar
     def run(word)
         while word
             last_char = word[-1]
-            if (last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/) || last_char == '.')
+            if (last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/) || last_char == '.' || last_char == '*')
                 break
             else
                 word = word.chomp(last_char)
