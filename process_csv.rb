@@ -18,7 +18,7 @@ class RowToHash
         table_data.each do |row|
             row = row.to_hash
             if request.selected_columns.first == '*'
-                p row
+                request.query_result << row
             elsif request.selected_columns
                 FilterByColumns.new.run(row, request)
             end

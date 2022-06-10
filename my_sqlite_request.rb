@@ -17,10 +17,6 @@ class MySqliteRequest
         @on                 = request_hash["ON"]
         @query_result       = []
     end
-
-    def run
-        PrintCommand.new.run(self)
-    end
 end
 
 class RouteRequest
@@ -144,6 +140,7 @@ class PrintCommand
         puts "Join_table:       #{request.join_table}"
         puts "On:               #{request.on}"
         puts "Query result:     #{request.query_result}"
+        # p request.query_result
         puts "-----------------------------------------------"
         puts
     end
