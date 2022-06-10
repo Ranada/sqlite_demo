@@ -1,7 +1,7 @@
 require_relative "process_csv.rb"
 
 class MySqliteRequest
-    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :keys, :values, :update_table, :set, :where, :join_table, :on
+    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :update_table, :set, :where, :join_table, :on
     attr_accessor :order, :query_result
 
     def initialize(request_hash)
@@ -9,9 +9,9 @@ class MySqliteRequest
         @selected_columns   = request_hash["SELECT"]
         @current_table      = request_hash["FROM"]
         @order              = request_hash["ORDER"]
-        @insert_table       = request_hash["INSERT"]
-        @keys               = request_hash["KEYS"]
-        @values             = request_hash["VALUES"]
+        @insert_table       = request_hash["INSERT_TABLE"]
+        @insert_columns     = request_hash["INSERT_COLUMNS"]
+        @insert_values      = request_hash["INSERT_VALUES"]
         @update_table       = request_hash["UPDATE"]
         @set                = request_hash["SET"]
         @where              = request_hash["WHERE"]
@@ -31,18 +31,6 @@ end
 class SelectProcess
     def run(request)
         ProcessData.new.run(request)
-    end
-end
-
-class FromCommand
-    attr_reader :current_table
-
-    def initialize(current_table)
-        @current_table = current_table
-    end
-
-    def run
-        p "CURRENT TABLE: #{self.current_table}"
     end
 end
 
@@ -173,8 +161,8 @@ class PrintCommand
         puts "Current table:    #{request.current_table}"
         puts "Order:            #{request.order}"
         puts "Insert table:     #{request.insert_table}"
-        puts "Keys:             #{request.keys}"
-        puts "Values:           #{request.values}"
+        puts "Insert columns:   #{request.insert_columns}"
+        puts "Insert values:    #{request.insert_values}"
         puts "Update table:     #{request.update_table}"
         puts "Set:              #{request.set}"
         puts "Where:            #{request.where}"

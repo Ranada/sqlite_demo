@@ -62,6 +62,23 @@ class ValidateQuery
     end
 end
 
+class Keywords
+    attr_reader :keywords
+
+    def initialize
+        @keywords = ["SELECT",
+                     "FROM",
+                     "ORDER",
+                     "INSERT",
+                     "VALUES",
+                     "UPDATE",
+                     "SET",
+                     "WHERE",
+                     "JOIN",
+                     "ON"]
+    end
+end
+
 class GetKeywordHash
     attr_accessor :hash
 
@@ -75,9 +92,9 @@ class GetKeywordHash
             @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
             @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             @hash["ORDER"] = Order.new.run(validated_cli_array, index) if word.upcase == "ORDER"
-            @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
-            @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "KEYS"
-            @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
+            @hash["INSERT_TABLE"] = InsertTable.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            @hash["INSERT_COLUMNS"] = InsertColumns.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            @hash["INSERT_VALUES"] = InsertValues.new.run(validated_cli_array, index) if word.upcase == "VALUES"
             @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
             @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
@@ -155,72 +172,56 @@ class Order
     end
 end
 
-class Insert
-    attr_reader :insert_table
+class InsertTable
+    attr_accessor :insert_table
 
     def initialize
         @insert_table = ""
     end
 
     def run(cli_array, index)
-        @insert_table += cli_array[index + 2]
+        self.insert_table += cli_array[index + 2]
+        self.insert_table = AppendCsvExtension.new.run(self.insert_table)
     end
 end
 
-class Keywords
-    attr_reader :keywords
+class InsertColumns
+    attr_reader :insert_columns
 
     def initialize
-        @keywords = ["SELECT",
-                     "FROM",
-                     "ORDER",
-                     "INSERT",
-                     "VALUES",
-                     "UPDATE",
-                     "WHERE",
-                     "JOIN",
-                     "ON"]
-    end
-end
-
-class Keys
-    attr_reader :keys
-
-    def initialize
-        @keys = []
+        @insert_columns = []
     end
 
     def run(cli_array, index)
-        input_keys_start = index + 3
-        if cli_array[input_keys_start][0] == '('
-            cli_array[input_keys_start..-1].each_with_index do |word, index|
-                if Keywords.new.keywords.include?(word.upcase)
-                    return @keys
-                end
-                @keys << Format.new.run(word)
+        columns_args_start = index + 3
+        cli_array[columns_args_start..-1].each_with_index do |word, index|
+            if Keywords.new.keywords.include?(word.upcase)
+                return self.insert_columns
+            else
+                self.insert_columns << Format.new.run(word)
             end
         end
     end
 end
 
-class Values
+class InsertValues
     attr_reader :values
 
     def initialize
-        @values = []
+        @insert_values = []
     end
 
     def run(cli_array, index)
         values_args_start = index + 1
-        if cli_array[values_args_start][0] == '('
-            cli_array[values_args_start..-1].each_with_index do |word, index|
-                if Keywords.new.keywords.include?(word.upcase)
-                    return @values
-                end
-                @values << Format.new.run(word)
+        p cli_array[values_args_start..-1]
+        cli_array[values_args_start..-1].each_with_index do |word, index|
+            if Keywords.new.keywords.include?(word.upcase)
+                return self.values
             end
-            return @values
+            p word
+            self.values << Format.new.run(word)
         end
+        self.values
     end
 end
 
