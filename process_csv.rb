@@ -36,7 +36,7 @@ class FilterByColumns
         if request.where
             FilterByCriteria.new.run(row_filtered, request)
         else
-            p row_filtered
+            request.query_result << row_filtered
         end
     end
 end
@@ -47,7 +47,7 @@ class FilterByCriteria
         criteria = request.where.values.first
 
         if (row_filtered[column_name] != nil) && (row_filtered[column_name].downcase == criteria.downcase)
-            p row_filtered
+            request.query_result << row_filtered
         end
     end
 end
