@@ -28,9 +28,7 @@ class ValidateQuery
             raise "Syntax Error: Your query must end with a `;`"
         end
 
-        p "VALIDATE"
-        p cli_array
-        p cli_array = cli_array.map { |word| Format.new.run(word)}
+        cli_array = cli_array.map { |word| Format.new.run(word)}
 
         first_word = cli_array[0]
         if ["SELECT", "INSERT", "UPDATE", "DELETE"].none?(first_word.upcase)
@@ -67,7 +65,7 @@ class GetKeywordHash
             @hash["FROM"] = From.new.run(validated_cli_array, index) if word.upcase == "FROM"
             @hash["ORDER"] = Order.new.run(validated_cli_array, index) if word.upcase == "ORDER"
             @hash["INSERT"] = Insert.new.run(validated_cli_array, index) if word.upcase == "INSERT"
-            @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "INSERT"
+            @hash["KEYS"] = Keys.new.run(validated_cli_array, index) if word.upcase == "KEYS"
             @hash["VALUES"] = Values.new.run(validated_cli_array, index) if word.upcase == "VALUES"
             @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
             @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
@@ -76,6 +74,7 @@ class GetKeywordHash
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
             # Check delete
         end
+        # @hash["ORDER"] = ["First column (default)", "ASC"] if @hash["ORDER"] == nil
         @hash
     end
 end
@@ -96,8 +95,7 @@ class Select
     def run(cli_array, index)
         select_args_start = index + 1
         cli_array[select_args_start..-1].each do |word|
-            if word[-1] != ','
-                @selected_columns << word
+            if Keywords.new.keywords.include?(word.upcase)
                 return @selected_columns
             else
                 @selected_columns << word.chomp(',')
@@ -132,20 +130,18 @@ class Order
     attr_reader :order
 
     def initialize
-        @order = :ASC
+        @order = []
     end
 
     def run(cli_array, index)
-        order_args_start = index + 1
-        if cli_array[order_args_start][0] == '('
-            cli_array[order_args_start..-1].each_with_index do |word, index|
-                if Keywords.new.keywords.include?(word)
-                    return @order
-                end
-                @order << Format.new.run(word)
+        order_args_start = index + 2
+        cli_array[order_args_start..-1].each_with_index do |word, index|
+            if Keywords.new.keywords.include?(word.upcase)
+                break
             end
-            return @order
+            self.order << Format.new.run(word)
         end
+        return self.order
     end
 end
 
@@ -167,6 +163,7 @@ class Keywords
     def initialize
         @keywords = ["SELECT",
                      "FROM",
+                     "ORDER",
                      "INSERT",
                      "VALUES",
                      "UPDATE",
@@ -187,7 +184,7 @@ class Keys
         input_keys_start = index + 3
         if cli_array[input_keys_start][0] == '('
             cli_array[input_keys_start..-1].each_with_index do |word, index|
-                if Keywords.new.keywords.include?(word)
+                if Keywords.new.keywords.include?(word.upcase)
                     return @keys
                 end
                 @keys << Format.new.run(word)
@@ -207,7 +204,7 @@ class Values
         values_args_start = index + 1
         if cli_array[values_args_start][0] == '('
             cli_array[values_args_start..-1].each_with_index do |word, index|
-                if Keywords.new.keywords.include?(word)
+                if Keywords.new.keywords.include?(word.upcase)
                     return @values
                 end
                 @values << Format.new.run(word)
@@ -250,10 +247,19 @@ class Where
     end
 
     def run(cli_array, index)
+        args = []
         where_args_start = index + 1
-        arg = cli_array[where_args_start..-1].join(' ')
-        column_name = arg.match(/([\S\s]+)\s*=\s*/).captures[0]
-        criteria = arg.match(/\s*=\s*([\S\s]+)/).captures[0]
+        cli_array[where_args_start..-1].each do |word|
+            if Keywords.new.keywords.include?(word.upcase)
+                break
+            else
+                args << word
+            end
+        end
+        p args
+        p args = args.join(' ')
+        column_name = args.match(/([\S\s]+)\s*=\s*/).captures[0]
+        criteria = args.match(/\s*=\s*([\S\s]+)/).captures[0]
         column_name = Format.new.run(column_name)
         criteria = Format.new.run(criteria)
         self.where[column_name] = criteria
@@ -288,7 +294,6 @@ end
 
 class FormatFirstChar
     def run(word)
-        puts word
          while word
             first_char = word[0]
             if (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/) || first_char == '*')

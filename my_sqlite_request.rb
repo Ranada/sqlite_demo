@@ -1,7 +1,8 @@
 require_relative "process_csv.rb"
 
 class MySqliteRequest
-    attr_reader :query_type, :selected_columns, :current_table, :order, :insert_table, :keys, :values, :update_table, :set, :where, :join_table, :on, :query_result
+    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :keys, :values, :update_table, :set, :where, :join_table, :on
+    attr_accessor :order, :query_result
 
     def initialize(request_hash)
         @query_type         = request_hash["QUERY_TYPE"]
@@ -23,16 +24,11 @@ end
 class RouteRequest
     def run(request)
         SelectProcess.new.run(request) if request.query_type == "SELECT"
+        OrderProcess.new.run(request)
     end
 end
 
 class SelectProcess
-    # attr_reader :selected_columns
-
-    # def initialize(selected_columns)
-    #     @selected_columns = selected_columns
-    # end
-
     def run(request)
         ProcessData.new.run(request)
     end
@@ -50,6 +46,27 @@ class FromCommand
     end
 end
 
+class OrderProcess
+    def run(request)
+        if request.order == nil
+            request.order = ["First column (default)", "ASC"]
+            request.query_result.sort_by! { |hash| hash.values.first }
+        else
+            column_name = request.order[0]
+            order = request.order[1]
+            if order == "ASC"
+                partitioned_array = request.query_result.partition { |key, value| key[column_name] != nil }
+                partitioned_array[0].sort_by! { |key, value|  key[column_name]}
+                request.query_result = partitioned_array.flatten
+            elsif order == "DESC"
+                partitioned_array = request.query_result.partition { |key, value| key[column_name] != nil }
+                partitioned_array[0].sort_by! { |key, value|  key[column_name]}.reverse
+                request.query_result = partitioned_array.flatten
+            end
+        end
+    end
+end
+
 class WhereCommand
     def initialize(column_name, criteria)
         @column_name
@@ -58,6 +75,8 @@ class WhereCommand
     def run
     end
 end
+
+
 
 class InsertCommand
     def initialize(table_name)
@@ -82,16 +101,6 @@ class JoinCommand
         @column_on_db_a = column_on_db_a
         @filename_db_b = filename_db_b
         @column_on_db_b = column_on_db_b
-    end
-
-    def run
-    end
-end
-
-class OrderCommand
-    def initialize(order, column_name)
-        @order = :asc
-        @column_name = column_name
     end
 
     def run
@@ -142,7 +151,8 @@ class PrintCommand
         puts "Join_table:       #{request.join_table}"
         puts "On:               #{request.on}"
         # puts "Query result:     #{request.query_result}"
-        # p request.query_result
+        puts "Query result:"
+        puts request.query_result
         puts "-----------------------------------------------"
         puts
     end
