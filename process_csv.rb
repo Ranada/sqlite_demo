@@ -17,7 +17,11 @@ class RowToHash
     def run(request, table_data)
         table_data.each do |row|
             row = row.to_hash
-            FilterByColumns.new.run(row, request)
+            if request.selected_columns.first == '*'
+                p row
+            elsif request.selected_columns
+                FilterByColumns.new.run(row, request)
+            end
         end
     end
 end
