@@ -37,8 +37,6 @@ class SelectProcess
     # end
 
     def run(request)
-        p "SELECTED COLUMNS #{request.selected_columns}"
-        p "FROM TABLE #{request.current_table}"
         ProcessData.new.run(request)
     end
 end

@@ -8,7 +8,6 @@ class ProcessData
     end
 
     def run(request)
-        puts "Hello from CSV class!!!"
         self.table_data = CSV.parse(File.read(request.current_table), headers: true)
         RowToHash.new.run(request, self.table_data)
     end
@@ -17,30 +16,34 @@ end
 class RowToHash
     def run(request, table_data)
         table_data.each do |row|
-            row_hash = row.to_hash
-            FilterColumns.new.run(row_hash, request)
+            row = row.to_hash
+            FilterByColumns.new.run(row, request)
         end
     end
 end
 
-class FilterColumns
-    def run(row_hash, request)
-        row_filtered_by_col_hash = {}
+class FilterByColumns
+    def run(row, request)
+        row_filtered = {}
         request.selected_columns.each do |col_name|
-            row_filtered_by_col_hash[col_name] = row_hash[col_name]
+            row_filtered[col_name] = row[col_name]
         end
-        FilterCriteria.new.run(row_filtered_by_col_hash, request)
-        # p filter_col_hash
+
+        if request.where
+            FilterByCriteria.new.run(row_filtered, request)
+        else
+            p row_filtered
+        end
     end
 end
 
-class FilterCriteria
-    def run(row_filtered_by_col_hash, request)
+class FilterByCriteria
+    def run(row_filtered, request)
         column_name = request.where.keys.first
         criteria = request.where.values.first
 
-        if row_filtered_by_col_hash[column_name] == criteria
-            p row_filtered_by_col_hash
+        if (row_filtered[column_name] != nil) && (row_filtered[column_name].downcase == criteria.downcase)
+            p row_filtered
         end
     end
 end
