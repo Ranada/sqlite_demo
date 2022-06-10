@@ -136,7 +136,8 @@ end
 
 class PrintCommand
     def run(request)
-        puts "-----------------------------------------------"
+        puts
+        puts "---------------------------------------------------------------------------------------------------------------------------------------"
         puts "REQUEST ATTRIBUTES"
         puts "Query type:       #{request.query_type}"
         puts "Selected columns: #{request.selected_columns}"
@@ -153,7 +154,7 @@ class PrintCommand
         # puts "Query result:     #{request.query_result}"
         puts "Query result:"
         puts request.query_result
-        puts "-----------------------------------------------"
+        puts "----------------------------------------------------------------------------------------------------------------------------------------"
         puts
     end
 end

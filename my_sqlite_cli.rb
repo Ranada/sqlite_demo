@@ -74,7 +74,6 @@ class GetKeywordHash
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
             # Check delete
         end
-        # @hash["ORDER"] = ["First column (default)", "ASC"] if @hash["ORDER"] == nil
         @hash
     end
 end
@@ -256,8 +255,7 @@ class Where
                 args << word
             end
         end
-        p args
-        p args = args.join(' ')
+        args = args.join(' ')
         column_name = args.match(/([\S\s]+)\s*=\s*/).captures[0]
         criteria = args.match(/\s*=\s*([\S\s]+)/).captures[0]
         column_name = Format.new.run(column_name)
