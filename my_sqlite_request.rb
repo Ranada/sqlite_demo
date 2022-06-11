@@ -87,11 +87,10 @@ class OrderProcess
 end
 
 class InsertProcess
-
-
     def run(request)
         puts "YOU MADE IT!"
         puts request.insert_hash
+        InsertIntoCSV.new.run(request)
     end
 end
 
@@ -154,6 +153,7 @@ class PrintCommand
         puts "Insert table:     #{request.insert_table}"
         puts "Insert columns:   #{request.insert_columns}"
         puts "Insert values:    #{request.insert_values}"
+        puts "Insert hash:      #{request.insert_hash}"
         puts "Update table:     #{request.update_table}"
         puts "Set:              #{request.set}"
         puts "Where:            #{request.where}"
