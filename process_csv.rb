@@ -19,7 +19,6 @@ class RowToHash
             row = row.to_hash
             if request.selected_columns.first == '*'
                 if request.where
-                    puts
                     FilterByCriteria.new.run(row, request)
                 else
                     request.query_result << row
@@ -95,20 +94,19 @@ class JoinCsvs
 
     def run(request)
         p "JOINCSVS"
-        p request.join_table
-        p request.on_hash
 
-        self.join_result = CSV.parse(File.read(request.current_table), headers: true)
-
-        joined_csv = CreateJoinCSV.new.run(request)
-        puts joined_csv
+        CreateJoinCSV.new.run(request)
+        AddRows.new.run(request)
+        self.join_result = CSV.parse(File.read("new_joined.csv"), headers: true)
     end
 end
 
 class CreateJoinCSV
     def run(request)
-        combined_headers = add_combined_headers(request)
-        joined_csv = add_combined_headers_to_joined(combined_headers)
+        CSV.open("new_joined.csv", "a+", :row_sep => "\r\n") do |new_joined_csv|
+            combined_headers = add_combined_headers(request)
+            add_combined_headers_to_joined(new_joined_csv, combined_headers)
+        end
     end
 
     def add_combined_headers(request)
@@ -118,9 +116,58 @@ class CreateJoinCSV
         combined_headers += current_table_headers + join_table_headers
     end
 
-    def add_combined_headers_to_joined(combined_headers)
-        CSV.open("new_joined.csv", "a+", :row_sep => "\r\n") do |joined_csv|
-            joined_csv << combined_headers
+    def add_combined_headers_to_joined(new_joined_csv, combined_headers)
+            new_joined_csv << combined_headers
+    end
+end
+
+class AddRows
+    def run(request)
+        current_table_column = request.on_hash[request.current_table.chomp('.csv')]
+        join_table_column = request.on_hash[request.join_table.chomp('.csv')]
+
+        CSV.open("new_joined.csv", "a+", :row_sep => "\r\n") do |new_joined_csv|
+            combined_values_array = []
+            current_table_array = []
+            join_table_hash = {}
+
+            CSV.parse(File.read(request.current_table), headers: true) do |current_table_row|
+                current_table_array << current_table_row.to_hash
+            end
+
+            CSV.parse(File.read(request.join_table), headers: true) do |join_table_row|
+                current_table_array.each do |current_table_row|
+                    if current_table_row[current_table_column] == join_table_row.to_hash[join_table_column]
+                        temp_array = []
+                        temp_array += current_table_row.to_hash.values
+                        temp_array += join_table_row.to_hash.values
+                        new_joined_csv << temp_array
+                    end
+                end
+            end
         end
     end
+
+    # def add_current_table_rows(new_joined_csv, current_table_data)
+    #     p "ADD CURRENT TABLE ROWS"
+    #     # puts RowToHash.new.run(request, table_data)
+
+    #     index = 0
+    #     current_table_data[0].each do |row|
+    #         index += 1
+    #         p row
+    #         p row.to_hash
+    #         p row.to_hash.values
+    #         puts
+    #     end
+    # end
+
+    # def add_join_table_rows(combined_values_array, join_table_data)
+    #      join_table_data.each do |row|
+    #         if row.to_hash[request.on_hash[request.join_table]] == original_row.to_hash[@column_on_table]
+    #             combined_values_array += joining_row.to_hash.values
+    #         end
+    #     end
+    #     combined_values_array
+    # end
 end
