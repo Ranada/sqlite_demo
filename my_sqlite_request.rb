@@ -1,7 +1,7 @@
 require_relative "process_csv.rb"
 
 class MySqliteRequest
-    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :update_table, :set, :where, :join_table, :on
+    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :insert_hash, :update_table, :set, :where, :join_table, :on
     attr_accessor :order, :query_result
 
     def initialize(request_hash)
@@ -12,6 +12,7 @@ class MySqliteRequest
         @insert_table       = request_hash["INSERT_TABLE"]
         @insert_columns     = request_hash["INSERT_COLUMNS"]
         @insert_values      = request_hash["INSERT_VALUES"]
+        @insert_hash        = request_hash["INSERT_HASH"]
         @update_table       = request_hash["UPDATE"]
         @set                = request_hash["SET"]
         @where              = request_hash["WHERE"]
@@ -86,16 +87,11 @@ class OrderProcess
 end
 
 class InsertProcess
-    attr_accessor :insert_hash
 
-    def initialize
-        @insert_hash = {}
-    end
 
     def run(request)
         puts "YOU MADE IT!"
-        request.insert_columns.zip(request.insert_values) { |column, value| self.insert_hash[column] = value }
-        puts self.insert_hash
+        puts request.insert_hash
     end
 end
 

@@ -86,6 +86,7 @@ class GetKeywordHash
     end
 
     def run(validated_cli_array)
+        puts "VALIDATED"
         validated_cli_array.each_with_index do |word, index|
             @hash["QUERY_TYPE"] = QueryType.new.run(validated_cli_array, index)
             @hash["SELECT"] = Select.new.run(validated_cli_array, index) if word.upcase == "SELECT"
@@ -94,6 +95,7 @@ class GetKeywordHash
             @hash["INSERT_TABLE"] = InsertTable.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["INSERT_COLUMNS"] = InsertColumns.new.run(validated_cli_array, index) if word.upcase == "INSERT"
             @hash["INSERT_VALUES"] = InsertValues.new.run(validated_cli_array, index) if word.upcase == "VALUES"
+            # @hash["INSERT_HASH"] = InsertHash.new.run(self.hash["INSERT_COLUMNS"], self.hash["INSERT_VALUES"]) if word.upcase == "VALUES"
             @hash["UPDATE"] = Update.new.run(validated_cli_array, index) if word.upcase == "UPDATE"
             @hash["SET"] = Set.new.run(validated_cli_array, index) if word.upcase == "SET"
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
@@ -101,7 +103,7 @@ class GetKeywordHash
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
             # Check delete
         end
-        @hash
+        self.hash
     end
 end
 
@@ -215,6 +217,7 @@ class InsertValues
     end
 
     def run(cli_array, index)
+        p "INSERT VALUES"
         value_args_start = index + 1
         cli_array[value_args_start..-1].each do |word|
             if word[-1] == ')'
@@ -224,9 +227,46 @@ class InsertValues
                 self.insert_values << word
             end
         end
+        months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]
         insert_values_string = self.insert_values.join(' ')
-        transform_array = insert_values_string.split(', ')
+        values_array = insert_values_string.split(', ')
+
+        transform_array = []
+        date_array = []
+
+        index = 0
+        while index < values_array.length
+            word = values_array[index]
+
+            if months.any? { |month| word.upcase.include?(month) }
+                date_array << word
+                date_array << values_array[index + 1]
+                transform_array << date_array.join(', ')
+                index += 1
+            else
+                transform_array << word
+            end
+
+            index += 1
+        end
+
         self.insert_values = transform_array.map { |word| Format.new.run(word) }
+    end
+end
+
+class InsertHash
+    attr_accessor :insert_hash
+
+    def intialize
+        @insert_hash = {}
+    end
+
+    def run(insert_columns, insert_values)
+        p "INSERT HASH"
+        p insert_columns
+        p insert_values
+        p insert_columns.zip(insert_values) { |column, value| self.insert_hash[column] = value }
+        p self.insert_hash
     end
 end
 
