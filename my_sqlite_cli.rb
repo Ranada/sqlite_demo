@@ -28,37 +28,36 @@ class ValidateQuery
             raise "Syntax Error: Your query must end with a `;`"
         end
 
-        cli_array = cli_array.map { |word| Format.new.run(word)}
+        temp_array = cli_array.map { |word| Format.new.run(word)}
 
-        first_word = cli_array[0]
+        first_word = temp_array[0]
         if ["SELECT", "INSERT", "UPDATE", "DELETE"].none?(first_word.upcase)
             raise "Syntax Error: Your query should start with `SELECT`, `INSERT`, `UPDATE`, or `DELETE`"
         end
 
-        cli_array.each_with_index do |word, index|
-            if word.upcase == "INSERT" && cli_array[index + 1].upcase != "INTO"
+        temp_array.each_with_index do |word, index|
+            if word.upcase == "INSERT" && temp_array[index + 1].upcase != "INTO"
                 raise "Syntax error: keyword `INSERT` should be followed by `INTO`"
             end
 
-            if word.upcase == "SET" && cli_array[index + 1].each_char.none?('=')
+            if word.upcase == "SET" && temp_array[index + 1].each_char.none?('=')
                 raise "Syntax error: keyword `SET` should be followed by arguments using a format with equal sign and no spaces `column_name=criteria`"
             end
 
-            if  word.upcase == "ORDER" && cli_array[index + 1] == nil
+            if  word.upcase == "ORDER" && temp_array[index + 1] == nil
                 raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
             end
 
-            if  word.upcase == "ORDER" && cli_array[index + 1].upcase != "BY"
+            if  word.upcase == "ORDER" && temp_array[index + 1].upcase != "BY"
                 raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
             end
 
-            if  word.upcase == "ORDER" && ["ASC", "DESC"].none?(cli_array[index + 3].chomp(';').upcase)
-                p cli_array[index + 3].chomp(';').upcase
-                p cli_array[index + 3]
-                puts
+            if  word.upcase == "ORDER" && (["ASC", "DESC"].none?(temp_array[index + 3].chomp(';').upcase))
                 raise "Syntax error: keywords `ORDER BY` then either `ASC` or `DESC`"
             end
         end
+
+        cli_array
     end
 end
 
@@ -186,42 +185,48 @@ class InsertTable
 end
 
 class InsertColumns
-    attr_reader :insert_columns
+    attr_accessor :insert_columns
 
     def initialize
         @insert_columns = []
     end
 
     def run(cli_array, index)
-        columns_args_start = index + 3
-        cli_array[columns_args_start..-1].each_with_index do |word, index|
-            if Keywords.new.keywords.include?(word.upcase)
-                return self.insert_columns
+        column_args_start = index + 3
+        cli_array[column_args_start..-1].each do |word|
+            if word[-1] == ')'
+                self.insert_columns << word
+                break
             else
-                self.insert_columns << Format.new.run(word)
+                self.insert_columns << word
             end
         end
+        insert_columns_string = self.insert_columns.join(' ')
+        transform_array = insert_columns_string.split(', ')
+        self.insert_columns = transform_array.map { |word| Format.new.run(word) }
     end
 end
 
 class InsertValues
-    attr_reader :values
+    attr_accessor :insert_values
 
     def initialize
         @insert_values = []
     end
 
     def run(cli_array, index)
-        values_args_start = index + 1
-        p cli_array[values_args_start..-1]
-        cli_array[values_args_start..-1].each_with_index do |word, index|
-            if Keywords.new.keywords.include?(word.upcase)
-                return self.values
+        value_args_start = index + 1
+        cli_array[value_args_start..-1].each do |word|
+            if word[-1] == ')'
+                self.insert_values << word
+                break
+            else
+                self.insert_values << word
             end
-            p word
-            self.values << Format.new.run(word)
         end
-        self.values
+        insert_values_string = self.insert_values.join(' ')
+        transform_array = insert_values_string.split(', ')
+        self.insert_values = transform_array.map { |word| Format.new.run(word) }
     end
 end
 
