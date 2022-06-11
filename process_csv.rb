@@ -87,7 +87,40 @@ class ValidateHashKeys
 end
 
 class JoinCsvs
-    def run(request)
+    attr_accessor :join_result
 
+    def initialize
+        @join_result = []
+    end
+
+    def run(request)
+        p "JOINCSVS"
+        p request.join_table
+        p request.on_hash
+
+        self.join_result = CSV.parse(File.read(request.current_table), headers: true)
+
+        joined_csv = CreateJoinCSV.new.run(request)
+        puts joined_csv
+    end
+end
+
+class CreateJoinCSV
+    def run(request)
+        combined_headers = add_combined_headers(request)
+        joined_csv = add_combined_headers_to_joined(combined_headers)
+    end
+
+    def add_combined_headers(request)
+        current_table_headers = CSV.read(request.current_table, headers: true).headers
+        join_table_headers = CSV.read(request.join_table, headers: true).headers
+        combined_headers = []
+        combined_headers += current_table_headers + join_table_headers
+    end
+
+    def add_combined_headers_to_joined(combined_headers)
+        CSV.open("new_joined.csv", "a+", :row_sep => "\r\n") do |joined_csv|
+            joined_csv << combined_headers
+        end
     end
 end
