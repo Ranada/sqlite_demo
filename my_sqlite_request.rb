@@ -24,6 +24,7 @@ end
 class RouteRequest
     def run(request)
         SelectProcess.new.run(request) if request.query_type == "SELECT"
+        InsertProcess.new.run(request) if request.query_type == "INSERT"
         OrderProcess.new.run(request)
     end
 end
@@ -84,23 +85,17 @@ class OrderProcess
     end
 end
 
-class WhereCommand
-    def initialize(column_name, criteria)
-        @column_name
+class InsertProcess
+    attr_accessor :insert_hash
+
+    def initialize
+        @insert_hash = {}
     end
 
-    def run
-    end
-end
-
-
-
-class InsertCommand
-    def initialize(table_name)
-        @table_name = table_name
-    end
-
-    def run
+    def run(request)
+        puts "YOU MADE IT!"
+        request.insert_columns.zip(request.insert_values) { |column, value| self.insert_hash[column] = value }
+        puts self.insert_hash
     end
 end
 
