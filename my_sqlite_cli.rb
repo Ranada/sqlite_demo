@@ -31,8 +31,8 @@ class ValidateQuery
         temp_array = cli_array.map { |word| Format.new.run(word)}
 
         first_word = temp_array[0]
-        if ["SELECT", "INSERT", "UPDATE", "DELETE"].none?(first_word.upcase)
-            raise "Syntax Error: Your query should start with `SELECT`, `INSERT`, `UPDATE`, or `DELETE`"
+        if ["SELECT", "INSERT", "UPDATE", "JOIN", "DELETE"].none?(first_word.upcase)
+            raise "Syntax Error: Your query should start with `SELECT`, `INSERT`, `UPDATE`, `JOIN`, or `DELETE`"
         end
 
         temp_array.each_with_index do |word, index|
@@ -324,27 +324,35 @@ class Where
 end
 
 class Join
-    attr_reader :join_table
+    attr_accessor :join_table
 
     def initialize
         @join_table = ""
     end
 
     def run(cli_array, index)
-        @join_table += cli_array[index + 1]
-        @join_table = Format.new.run(@join_table)
+        self.join_table += cli_array[index + 1]
+        self.join_table = Format.new.run(self.join_table)
+        self.join_table = AppendCsvExtension.new.run(self.join_table)
     end
 end
 
 class On
-    attr_reader :on
+    attr_accessor :on_hash
 
     def initialize
-        @on = []
+        @on_hash = {}
     end
 
     def run(cli_array, index)
-        cli_array[index + 1]
+        on_args_array = cli_array[index + 1].split('=')
+        on_args_array.each do |join_item|
+            temp_array = join_item.split('.')
+            table_name = temp_array[0]
+            column_name = temp_array[1]
+            self.on_hash[table_name] = column_name
+        end
+        self.on_hash
     end
 end
 

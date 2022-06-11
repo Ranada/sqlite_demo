@@ -18,7 +18,12 @@ class RowToHash
         table_data.each do |row|
             row = row.to_hash
             if request.selected_columns.first == '*'
-                request.query_result << row
+                if request.where
+                    puts
+                    FilterByCriteria.new.run(row, request)
+                else
+                    request.query_result << row
+                end
             elsif request.selected_columns
                 FilterByColumns.new.run(row, request)
             end
@@ -78,5 +83,11 @@ class ValidateHashKeys
                 return
             end
         end
+    end
+end
+
+class JoinCsvs
+    def run(request)
+
     end
 end

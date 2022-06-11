@@ -27,6 +27,7 @@ class RouteRequest
         SelectProcess.new.run(request) if request.query_type == "SELECT"
         InsertProcess.new.run(request) if request.query_type == "INSERT"
         OrderProcess.new.run(request)
+        JoinProcess.new.run(request) if request.join_table != nil
     end
 end
 
@@ -88,29 +89,13 @@ end
 
 class InsertProcess
     def run(request)
-        puts "YOU MADE IT!"
-        puts request.insert_hash
         InsertIntoCSV.new.run(request)
     end
 end
 
-class ValuesCommand
-    def initialize(data_hash)
-        @data_hash = data_hash
-    end
-
-    def run
-    end
-end
-
-class JoinCommand
-    def initialize(column_on_db_a, filename_db_b, column_on_db_b)
-        @column_on_db_a = column_on_db_a
-        @filename_db_b = filename_db_b
-        @column_on_db_b = column_on_db_b
-    end
-
-    def run
+class JoinProcess
+    def run(request)
+        # JoinCsvs.new.run(request)
     end
 end
 
