@@ -26,14 +26,14 @@ class RouteRequest
     def run(request)
         SelectProcess.new.run(request) if request.query_type == "SELECT"
         InsertProcess.new.run(request) if request.query_type == "INSERT"
-        OrderProcess.new.run(request)
-        JoinProcess.new.run(request) if request.join_table != nil
     end
 end
 
 class SelectProcess
     def run(request)
         ProcessData.new.run(request)
+        OrderProcess.new.run(request)
+        JoinProcess.new.run(request) if request.join_table != nil
     end
 end
 
