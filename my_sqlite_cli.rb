@@ -317,43 +317,4 @@ class On
     end
 end
 
-class FormatFirstChar
-    def run(word)
-         while word
-            first_char = word[0]
-            puts word
-            puts first_char
-            puts
-            if first_char != nil && (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/) || first_char == '*')
-                break
-            else
-                word = word[1..-1]
-            end
-        end
-        word
-    end
-end
-
-class FormatLastChar
-    def run(word)
-        while word
-            last_char = word[-1]
-            if (last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/) || last_char == '.' || last_char == '*')
-                break
-            else
-                word = word.chomp(last_char)
-            end
-        end
-        word
-    end
-end
-
-class Format
-    def run(word)
-        word = FormatFirstChar.new.run(word)
-        word = FormatLastChar.new.run(word)
-        return word
-    end
-end
-
 MySqliteQueryCli.new.run!

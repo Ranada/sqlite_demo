@@ -27,7 +27,10 @@ end
 
 class ScanEntireQuery
     def run(cli_array)
-        temp_array = cli_array.map { |word| Format.new.run(word)}
+         p "MADE IT HERE"
+         p cli_array
+        p temp_array = cli_array.map { |word| Format.new.run(word)}
+        puts
         temp_array.each_with_index do |word, index|
             CheckInsertArgs.new.run(temp_array, word, index)
             CheckOnArgs.new.run(temp_array, word, index)
@@ -60,5 +63,44 @@ class CheckOnArgs
         if word.upcase == "ON" && temp_array[index + 1].each_char.none?(/\S*\s*=\s*\S*/)
             raise "Syntax error: keyword `ON` should be followed by arguments using a format with equal sign: `column_name=criteria` or `column_name = criteria`"
         end
+    end
+end
+
+class Format
+    def run(word)
+        word = FormatFirstChar.new.run(word)
+        word = FormatLastChar.new.run(word)
+        return word
+    end
+end
+
+class FormatFirstChar
+    def run(word)
+         while word
+            first_char = word[0]
+            puts word
+            puts first_char
+            puts
+            if first_char != nil && (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/) || ['*', '='].include?(first_char))
+                break
+            else
+                word = word[1..-1]
+            end
+        end
+        word
+    end
+end
+
+class FormatLastChar
+    def run(word)
+        while word
+            last_char = word[-1]
+            if (last_char.match?(/[A-Za-z]/) || last_char.match?(/[0-9]/) || last_char == '.' || ['*', '='].include?(last_char))
+                break
+            else
+                word = word.chomp(last_char)
+            end
+        end
+        word
     end
 end
