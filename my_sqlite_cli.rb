@@ -129,6 +129,7 @@ class Order
             end
             self.order << Format.new.run(word)
         end
+        self.order << "ASC" if self.order.length == 1
         return self.order
     end
 end

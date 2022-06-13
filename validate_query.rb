@@ -33,45 +33,45 @@ class ScanEntireQuery
         puts
         temp_array.each_with_index do |word, index|
             CheckWhereArgs.new.run(temp_array, word, index) if word.upcase == "WHERE"
-            CheckInsertArgs.new.run(temp_array, word, index)
-            CheckOnArgs.new.run(temp_array, word, index)
-
-            if  word.upcase == "ORDER" && temp_array[index + 1] == nil
-                raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
-            end
-
-            if  word.upcase == "ORDER" && temp_array[index + 1].upcase != "BY"
-                raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
-            end
-
-            if  word.upcase == "ORDER" && (["ASC", "DESC"].none?(temp_array[index + 3].chomp(';').upcase))
-                raise "Syntax error: keywords `ORDER BY` then either `ASC` or `DESC`"
-            end
+            CheckOnArgs.new.run(temp_array, word, index) if word.upcase == "ON"
+            CheckInsertArgs.new.run(temp_array, word, index) if word.upcase == "INSERT"
+            CheckOrderArgs.new.run(temp_array, word, index) if word.upcase == "ORDER"
         end
     end
 end
 
 class CheckWhereArgs
     def run(temp_array, word, index)
-        p "CHECK WHERE"
         if !(temp_array[index + 1].include?('=') || temp_array[index + 2].include?('='))
             raise "Syntax error: keyword `WHERE` should be followed by arguments using a format with equal sign: `column_name=criteria` or `column_name = criteria`"
         end
     end
 end
 
-class CheckInsertArgs
+class CheckOnArgs
     def run(temp_array, word, index)
-        if word.upcase == "INSERT" && temp_array[index + 1].upcase != "INTO"
-            raise "Syntax error: keyword `INSERT` should be followed by `INTO`"
+        if !(temp_array[index + 1].include?('=') || temp_array[index + 2].include?('='))
+            raise "Syntax error: keyword `ON` should be followed by arguments using a format with equal sign: `column_name=criteria` or `column_name = criteria`"
         end
     end
 end
 
-class CheckOnArgs
+class CheckOrderArgs
     def run(temp_array, word, index)
-        if word.upcase == "ON" && temp_array[index + 1].each_char.none?(/\s*=\s*|\S*\s*=\s*\S*/)
-            raise "Syntax error: keyword `ON` should be followed by arguments using a format with equal sign: `column_name=criteria` or `column_name = criteria`"
+        if temp_array[index + 1] == nil || temp_array[index + 1].upcase != "BY"
+            raise "Syntax error: keyword `ORDER` should be followed by the word `BY <column name>`"
+        end
+
+        if temp_array[index + 3] != nil && (["ASC", "DESC"].none?(temp_array[index + 3].upcase))
+            raise "Syntax error: keywords `ORDER BY <column name>` should be followed by `ASC` or `DESC`"
+        end
+    end
+end
+
+class CheckInsertArgs
+    def run(temp_array, word, index)
+        if temp_array[index + 1].upcase != "INTO"
+            raise "Syntax error: keyword `INSERT` should be followed by `INTO`"
         end
     end
 end
