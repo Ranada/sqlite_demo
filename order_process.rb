@@ -1,46 +1,55 @@
 class OrderProcess
     def run(request)
         if request.order == nil
-            default_order(request)
+            # default_order(request)
+            DefaultOrder.new.run(request)
         else
-            cli_entry_order(request)
+            # cli_entry_order(request)
+            CliEntryOrder.new.run(request)
         end
     end
+end
 
-    def default_order(request)
+class DefaultOrder
+    def run(request)
         request.order = ["First column (default)", "ASC"]
         request.query_result.sort_by! { |hash| hash.values.first }
     end
+end
 
-    def cli_entry_order(request)
+class CliEntryOrder
+    def run(request)
         column_name = request.order[0]
         order = request.order[1].upcase
-        order_asc(request, column_name) if order == "ASC"
-        order_desc(request, column_name) if order == "DESC"
+        OrderAsc.new.run(request, column_name) if order == "ASC"
+        OrderDesc.new.run(request, column_name) if order == "DESC"
     end
 
-    def order_asc(request, column_name)
+end
+
+class OrderAsc
+    def run(request, column_name)
         if request.query_result.each.any? { |key, value| key[column_name] == nil }
             partition_nil_asc(request, column_name)
         else
             request.query_result = request.query_result.sort_by! { |key, value|  key[column_name]}
         end
     end
-
     def partition_nil_asc(request,column_name)
         partitioned_array = request.query_result.partition { |key, value| key[column_name] != nil }
         partitioned_array[0] = partitioned_array[0].sort_by! { |key, value|  key[column_name]}
         request.query_result = partitioned_array.flatten
     end
+end
 
-    def order_desc(request, column_name)
+class OrderDesc
+    def run(request, column_name)
         if request.query_result.each.any? { |key, value| key[column_name] == nil }
             partition_nil_desc(request, column_name)
         else
             request.query_result = request.query_result.sort_by! { |key, value|  key[column_name]}.reverse
         end
     end
-
     def partition_nil_desc(request, column_name)
         partitioned_array = request.query_result.partition { |key, value| key[column_name] != nil }
         partitioned_array[0] = partitioned_array[0].sort_by! { |key, value|  key[column_name]}.reverse

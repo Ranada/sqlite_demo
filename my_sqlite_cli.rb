@@ -1,4 +1,5 @@
 require_relative "my_sqlite_request.rb"
+require_relative "validate_query.rb"
 require "readline"
 
 class MySqliteQueryCli
@@ -18,46 +19,6 @@ end
 class ParseCli
     def run(cli_entry)
         cli_entry.split(" ")
-    end
-end
-
-class ValidateQuery
-    def run(cli_array)
-        last_word_last_char = cli_array[-1][-1]
-        if last_word_last_char != ';'
-            raise "Syntax Error: Your query must end with a `;`"
-        end
-
-        temp_array = cli_array.map { |word| Format.new.run(word)}
-
-        first_word = temp_array[0]
-        if ["SELECT", "INSERT", "UPDATE", "JOIN", "DELETE"].none?(first_word.upcase)
-            raise "Syntax Error: Your query should start with `SELECT`, `INSERT`, `UPDATE`, `JOIN`, or `DELETE`"
-        end
-
-        temp_array.each_with_index do |word, index|
-            if word.upcase == "INSERT" && temp_array[index + 1].upcase != "INTO"
-                raise "Syntax error: keyword `INSERT` should be followed by `INTO`"
-            end
-
-            if word.upcase == "SET" && temp_array[index + 1].each_char.none?('=')
-                raise "Syntax error: keyword `SET` should be followed by arguments using a format with equal sign and no spaces `column_name=criteria`"
-            end
-
-            if  word.upcase == "ORDER" && temp_array[index + 1] == nil
-                raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
-            end
-
-            if  word.upcase == "ORDER" && temp_array[index + 1].upcase != "BY"
-                raise "Syntax error: keyword `ORDER` should be followed by the word `BY`"
-            end
-
-            if  word.upcase == "ORDER" && (["ASC", "DESC"].none?(temp_array[index + 3].chomp(';').upcase))
-                raise "Syntax error: keywords `ORDER BY` then either `ASC` or `DESC`"
-            end
-        end
-
-        cli_array
     end
 end
 
@@ -345,7 +306,7 @@ class On
     end
 
     def run(cli_array, index)
-        on_args_array = cli_array[index + 1].split('=')
+        p on_args_array = cli_array[index + 1].split(/\s*=\s*/)
         on_args_array.each do |join_item|
             temp_array = join_item.split('.')
             table_name = temp_array[0]
@@ -360,7 +321,10 @@ class FormatFirstChar
     def run(word)
          while word
             first_char = word[0]
-            if (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/) || first_char == '*')
+            puts word
+            puts first_char
+            puts
+            if first_char != nil && (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/) || first_char == '*')
                 break
             else
                 word = word[1..-1]
