@@ -80,7 +80,6 @@ class Format
     def run(word)
         word = FormatFirstChar.new.run(word)
         word = FormatLastChar.new.run(word)
-        return word
     end
 end
 

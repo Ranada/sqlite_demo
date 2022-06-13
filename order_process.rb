@@ -1,10 +1,8 @@
 class OrderProcess
     def run(request)
         if request.order == nil
-            # default_order(request)
             DefaultOrder.new.run(request)
         else
-            # cli_entry_order(request)
             CliEntryOrder.new.run(request)
         end
     end

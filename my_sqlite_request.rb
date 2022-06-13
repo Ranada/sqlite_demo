@@ -1,5 +1,6 @@
-require_relative "process_csv.rb"
+require_relative "csv_process.rb"
 require_relative "order_process.rb"
+require_relative "join_process.rb"
 
 class MySqliteRequest
     attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :insert_hash, :update_table, :set, :where, :join_table, :on_hash
@@ -32,7 +33,7 @@ end
 
 class SelectProcess
     def run(request)
-        ProcessData.new.run(request)
+        CsvProcess.new.run(request)
         OrderProcess.new.run(request)
         JoinProcess.new.run(request) if request.join_table != nil
     end
@@ -41,12 +42,6 @@ end
 class InsertProcess
     def run(request)
         InsertIntoCSV.new.run(request)
-    end
-end
-
-class JoinProcess
-    def run(request)
-        JoinCsvs.new.run(request)
     end
 end
 
