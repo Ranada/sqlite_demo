@@ -32,6 +32,7 @@ class ScanEntireQuery
         p temp_array = cli_array.map { |word| Format.new.run(word)}
         puts
         temp_array.each_with_index do |word, index|
+            CheckWhereArgs.new.run(temp_array, word, index) if word.upcase == "WHERE"
             CheckInsertArgs.new.run(temp_array, word, index)
             CheckOnArgs.new.run(temp_array, word, index)
 
@@ -50,6 +51,15 @@ class ScanEntireQuery
     end
 end
 
+class CheckWhereArgs
+    def run(temp_array, word, index)
+        p "CHECK WHERE"
+        if !(temp_array[index + 1].include?('=') || temp_array[index + 2].include?('='))
+            raise "Syntax error: keyword `WHERE` should be followed by arguments using a format with equal sign: `column_name=criteria` or `column_name = criteria`"
+        end
+    end
+end
+
 class CheckInsertArgs
     def run(temp_array, word, index)
         if word.upcase == "INSERT" && temp_array[index + 1].upcase != "INTO"
@@ -60,7 +70,7 @@ end
 
 class CheckOnArgs
     def run(temp_array, word, index)
-        if word.upcase == "ON" && temp_array[index + 1].each_char.none?(/\S*\s*=\s*\S*/)
+        if word.upcase == "ON" && temp_array[index + 1].each_char.none?(/\s*=\s*|\S*\s*=\s*\S*/)
             raise "Syntax error: keyword `ON` should be followed by arguments using a format with equal sign: `column_name=criteria` or `column_name = criteria`"
         end
     end
@@ -78,9 +88,6 @@ class FormatFirstChar
     def run(word)
          while word
             first_char = word[0]
-            puts word
-            puts first_char
-            puts
             if first_char != nil && (first_char.match?(/[A-Za-z]/) || first_char.match?(/[0-9]/) || ['*', '='].include?(first_char))
                 break
             else
