@@ -1,7 +1,7 @@
-require_relative "csv_process.rb"
-require_relative "order_process.rb"
-require_relative "insert_into_csv_process.rb"
-require_relative "join_process.rb"
+require_relative "./lib/csv_process.rb"
+require_relative "./lib/order_process.rb"
+require_relative "./lib/insert_into_csv_process.rb"
+require_relative "./lib/join_process.rb"
 
 class MySqliteRequest
     attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :insert_hash, :update_table, :set, :where, :join_table, :on_hash

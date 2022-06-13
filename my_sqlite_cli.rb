@@ -1,5 +1,5 @@
 require_relative "my_sqlite_request.rb"
-require_relative "validate_query.rb"
+require_relative "./lib/validate_query.rb"
 require "readline"
 
 class MySqliteQueryCli
