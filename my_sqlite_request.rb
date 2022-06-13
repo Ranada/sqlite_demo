@@ -1,5 +1,6 @@
 require_relative "csv_process.rb"
 require_relative "order_process.rb"
+require_relative "insert_into_csv_process.rb"
 require_relative "join_process.rb"
 
 class MySqliteRequest
@@ -41,7 +42,7 @@ end
 
 class InsertProcess
     def run(request)
-        InsertIntoCSV.new.run(request)
+        InsertIntoCsvProcess.new.run(request)
     end
 end
 
