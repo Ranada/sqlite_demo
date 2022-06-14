@@ -3,7 +3,7 @@ require_relative "./lib/csv_process.rb"
 require_relative "./lib/order_process.rb"
 require_relative "./lib/insert_into_csv_process.rb"
 require_relative "./lib/join_process.rb"
-require_relative "./lib/update_csv_process.rb"
+require_relative "./lib/update_row.rb"
 require_relative "./lib/delete_row.rb"
 
 class MySqliteRequest
@@ -55,7 +55,7 @@ end
 
 class UpdateProcess
     def run(request)
-        UpdateCsvProcess.new.run(request)
+        UpdateRow.new.run(request)
     end
 end
 

@@ -241,11 +241,25 @@ class Set
     attr_reader :set
 
     def initialize
-        @set = []
+        @set = {}
     end
     def run(cli_array, index)
-        @set += cli_array[index + 1].split(/=|\s=\s/)
-        @set = @set.map { |word| Format.new.run(word)}
+        args = []
+        set_args_start = index + 1
+        cli_array[set_args_start..-1].each do |word|
+            if Keywords.new.keywords.include?(word.upcase)
+                break
+            else
+                args << word
+            end
+        end
+        args = args.join(' ')
+        column_name = args.match(/([\S\s]+)\s*=\s*/).captures[0]
+        criteria = args.match(/\s*=\s*([\S\s]+)/).captures[0]
+        column_name = Format.new.run(column_name)
+        criteria = Format.new.run(criteria)
+        self.set[column_name] = criteria
+        self.set
     end
 end
 
