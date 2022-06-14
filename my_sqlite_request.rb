@@ -82,7 +82,7 @@ class PrintAttributes
         puts "Join_table:       #{request.join_table}"          if request.join_table != nil
         puts "New joined table: #{request.new_joined_table}"    if request.join_table != nil
         puts "On:               #{request.on_hash}"             if request.on_hash != nil
-        puts "Delete table:     #{request.delete_table}"    if request.join_table != nil
+        puts "Delete table:     #{request.delete_table}"        if request.join_table != nil
         puts "Query result:"
         puts request.query_result
         puts "----------------------------------------------------------------------------------------------------------------------------------------"
