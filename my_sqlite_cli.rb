@@ -45,7 +45,6 @@ class GetKeywordHash
     def initialize
         @hash = {}
     end
-
     def run(validated_cli_array)
         validated_cli_array.each_with_index do |word, index|
             @hash["QUERY_TYPE"] = QueryType.new.run(validated_cli_array, index)
@@ -79,7 +78,6 @@ class Select
     def initialize
         @selected_columns = []
     end
-
     def run(cli_array, index)
         select_args_start = index + 1
         cli_array[select_args_start..-1].each do |word|
@@ -104,10 +102,10 @@ end
 
 class From
     attr_accessor :current_table
+
     def initialize
         @current_table = ""
     end
-
     def run(cli_array, index)
         @current_table += cli_array[index + 1].chomp(';')
         self.current_table = AppendCsvExtension.new.run(self.current_table)
@@ -120,7 +118,6 @@ class Order
     def initialize
         @order = []
     end
-
     def run(cli_array, index)
         order_args_start = index + 2
         cli_array[order_args_start..-1].each_with_index do |word, index|
@@ -140,7 +137,6 @@ class InsertTable
     def initialize
         @insert_table = ""
     end
-
     def run(cli_array, index)
         self.insert_table += cli_array[index + 2]
         self.insert_table = AppendCsvExtension.new.run(self.insert_table)
@@ -153,7 +149,6 @@ class InsertColumns
     def initialize
         @insert_columns = []
     end
-
     def run(cli_array, index)
         column_args_start = index + 3
         cli_array[column_args_start..-1].each do |word|
@@ -176,7 +171,6 @@ class InsertValues
     def initialize
         @insert_values = []
     end
-
     def run(cli_array, index)
         value_args_start = index + 1
         cli_array[value_args_start..-1].each do |word|
@@ -197,7 +191,6 @@ class ParseValues
         values_array = insert_values_string.split(', ')
         transform_values(values_array)
     end
-
     def transform_values(values_array)
         months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]
         transform_array = []
@@ -225,7 +218,6 @@ class InsertHash
     def intialize
         @insert_hash = {}
     end
-
     def run(insert_columns, insert_values)
         temp_hash = {}
         insert_columns.zip(insert_values) { |column, value| temp_hash[column] = value }
@@ -239,7 +231,6 @@ class Update
     def initialize
         @update_table = ""
     end
-
     def run(cli_array, index)
         @update_table += cli_array[index + 1]
     end
@@ -251,7 +242,6 @@ class Set
     def initialize
         @set = []
     end
-
     def run(cli_array, index)
         @set += cli_array[index + 1].split(/=|\s=\s/)
         @set = @set.map { |word| Format.new.run(word)}
@@ -264,7 +254,6 @@ class Where
     def initialize
         @where = {}
     end
-
     def run(cli_array, index)
         args = []
         where_args_start = index + 1
@@ -291,7 +280,6 @@ class Join
     def initialize
         @join_table = ""
     end
-
     def run(cli_array, index)
         self.join_table += cli_array[index + 1]
         self.join_table = Format.new.run(self.join_table)
@@ -305,9 +293,8 @@ class On
     def initialize
         @on_hash = {}
     end
-
     def run(cli_array, index)
-        p on_args_array = cli_array[index + 1].split(/\s*=\s*/)
+        on_args_array = cli_array[index + 1].split(/\s*=\s*/)
         on_args_array.each do |join_item|
             temp_array = join_item.split('.')
             table_name = temp_array[0]

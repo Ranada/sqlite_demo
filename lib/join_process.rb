@@ -15,13 +15,13 @@ class JoinCsvs
         p "Creating new joined csv. This may take a few moments for large data sets."
         CreateJoinCSV.new.run(request)
         AddRows.new.run(request)
-        self.join_result = CSV.parse(File.read("new_joined.csv"), headers: true)
+        self.join_result = CSV.parse(File.read(request.new_joined_table ), headers: true)
     end
 end
 
 class CreateJoinCSV
     def run(request)
-        CSV.open("new_joined.csv", "a+", :row_sep => "\r\n") do |new_joined_csv|
+        CSV.open(request.new_joined_table , "a+", :row_sep => "\r\n") do |new_joined_csv|
             combined_headers = add_combined_headers(request)
             add_combined_headers_to_joined(new_joined_csv, combined_headers)
         end
@@ -35,13 +35,13 @@ class CreateJoinCSV
     end
 
     def add_combined_headers_to_joined(new_joined_csv, combined_headers)
-            new_joined_csv << combined_headers
+        new_joined_csv << combined_headers
     end
 end
 
 class AddRows
     def run(request)
-        CSV.open("new_joined.csv", "a+", :row_sep => "\r\n") do |new_joined_csv|
+        CSV.open(request.new_joined_table , "a+", :row_sep => "\r\n") do |new_joined_csv|
             current_table_array = []
             AddCurrentTableRows.new.run(request, current_table_array)
             AddJoinTableRows.new.run(request, current_table_array, new_joined_csv)

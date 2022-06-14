@@ -2,13 +2,13 @@ require 'csv'
 
 class CsvProcess
     attr_accessor :table_data
-
+    
     def initialize
         @table_data = nil
     end
-
     def run(request)
-        self.table_data = CSV.parse(File.read(request.current_table), headers: true)
+        self.table_data = CSV.parse(File.read(request.current_table), headers: true) if request.join_table == nil
+        self.table_data = CSV.parse(File.read(request.new_joined_table), headers: true) if request.join_table != nil
         RowToHash.new.run(request, self.table_data)
     end
 end
@@ -36,7 +36,6 @@ class FilterByColumns
         request.selected_columns.each do |col_name|
             row_filtered[col_name] = row[col_name]
         end
-
         if request.where
             FilterByCriteria.new.run(row_filtered, request)
         else
@@ -49,7 +48,6 @@ class FilterByCriteria
     def run(row_filtered, request)
         column_name = request.where.keys.first
         criteria = request.where.values.first
-
         if (row_filtered[column_name] != nil) && (row_filtered[column_name].downcase == criteria.downcase)
             request.query_result << row_filtered
         end

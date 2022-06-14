@@ -27,10 +27,7 @@ end
 
 class ScanEntireQuery
     def run(cli_array)
-         p "MADE IT HERE"
-         p cli_array
-        p temp_array = cli_array.map { |word| Format.new.run(word)}
-        puts
+        temp_array = cli_array.map { |word| Format.new.run(word)}
         temp_array.each_with_index do |word, index|
             CheckWhereArgs.new.run(temp_array, word, index) if word.upcase == "WHERE"
             CheckOnArgs.new.run(temp_array, word, index) if word.upcase == "ON"
