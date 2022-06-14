@@ -226,13 +226,14 @@ class InsertHash
 end
 
 class Update
-    attr_reader :update_table
+    attr_accessor :update_table
 
     def initialize
         @update_table = ""
     end
     def run(cli_array, index)
-        @update_table += cli_array[index + 1]
+        self.update_table += cli_array[index + 1]
+        self.update_table = AppendCsvExtension.new.run(self.update_table)
     end
 end
 

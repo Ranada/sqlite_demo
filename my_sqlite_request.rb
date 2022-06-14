@@ -2,6 +2,7 @@ require_relative "./lib/csv_process.rb"
 require_relative "./lib/order_process.rb"
 require_relative "./lib/insert_into_csv_process.rb"
 require_relative "./lib/join_process.rb"
+require_relative "./lib/update_csv_process.rb"
 
 class MySqliteRequest
     attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :insert_hash, :update_table, :set, :where, :join_table, :on_hash
@@ -30,6 +31,7 @@ class RouteRequest
     def run(request)
         SelectProcess.new.run(request) if request.query_type == "SELECT"
         InsertProcess.new.run(request) if request.query_type == "INSERT"
+        UpdateProcess.new.run(request) if request.query_type == "UPDATE"
     end
 end
 
@@ -47,12 +49,9 @@ class InsertProcess
     end
 end
 
-class UpdateCommand
-    def initialize(table_name)
-        @table_name = table_name
-    end
-
-    def run
+class UpdateProcess
+    def run(request)
+        UpdateCsvProcess.new.run(request)
     end
 end
 
@@ -91,7 +90,7 @@ class PrintAttributes
         puts "Set:              #{request.set}"                 if request.set != nil
         puts "Where:            #{request.where}"               if request.where != nil
         puts "Join_table:       #{request.join_table}"          if request.join_table != nil
-        puts "New joined table: #{request.new_joined_table}"    if request.new_joined_table != nil
+        puts "New joined table: #{request.new_joined_table}"    if request.join_table != nil
         puts "On:               #{request.on_hash}"             if request.on_hash != nil
         puts "Query result:"
         puts request.query_result
