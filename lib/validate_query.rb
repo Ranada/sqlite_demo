@@ -79,7 +79,7 @@ class CheckDeleteArgs
         if temp_array[index + 1] == nil || temp_array[index + 1].upcase != "FROM"
             raise "Syntax error: keyword `DELETE` should be followed by the words `FROM <table name>`"
         end
-
+        
         if temp_array[index + 3] != nil && (["WHERE"].none?(temp_array[index + 3].upcase))
             puts
             puts "*Caution: The words `DELETE FROM <table name>` should be followed by `WHERE <columnname> = <criteria>`. Omitting `WHERE` will delete all table records!"
