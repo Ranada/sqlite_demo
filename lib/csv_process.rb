@@ -1,8 +1,8 @@
-require 'csv'
+# require 'csv'
 
 class CsvProcess
     attr_accessor :table_data
-    
+
     def initialize
         @table_data = nil
     end
