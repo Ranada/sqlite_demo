@@ -60,7 +60,7 @@ class GetKeywordHash
             @hash["WHERE"] = Where.new.run(validated_cli_array, index) if word.upcase == "WHERE"
             @hash["JOIN"] = Join.new.run(validated_cli_array, index) if word.upcase == "JOIN"
             @hash["ON"] = On.new.run(validated_cli_array, index) if word.upcase == "ON"
-            # Check delete
+            @hash["DELETE"] = Delete.new.run(validated_cli_array, index) if word.upcase == "DELETE"
         end
         self.hash
     end
@@ -303,6 +303,19 @@ class On
             self.on_hash[table_name] = column_name
         end
         self.on_hash
+    end
+end
+
+class Delete
+    attr_accessor :delete_table
+
+    def initialize
+        @delete_table = ""
+    end
+    def run(cli_array, index)
+        self.delete_table += cli_array[index + 2]
+        self.delete_table = Format.new.run(self.delete_table)
+        self.delete_table = AppendCsvExtension.new.run(self.delete_table)
     end
 end
 

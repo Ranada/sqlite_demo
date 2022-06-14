@@ -5,7 +5,7 @@ require_relative "./lib/join_process.rb"
 require_relative "./lib/update_csv_process.rb"
 
 class MySqliteRequest
-    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :insert_hash, :update_table, :set, :where, :join_table, :on_hash
+    attr_reader :query_type, :selected_columns, :current_table, :insert_table, :insert_columns, :insert_values, :insert_hash, :update_table, :set, :where, :join_table, :on_hash, :delete_table
     attr_accessor :order, :query_result, :new_joined_table
 
     def initialize(request_hash)
@@ -23,6 +23,7 @@ class MySqliteRequest
         @join_table         = request_hash["JOIN"]
         @new_joined_table   = "new_joined.csv"
         @on_hash            = request_hash["ON"]
+        @delete_table       = request_hash["DELETE"]
         @query_result       = []
     end
 end
@@ -32,6 +33,7 @@ class RouteRequest
         SelectProcess.new.run(request) if request.query_type == "SELECT"
         InsertProcess.new.run(request) if request.query_type == "INSERT"
         UpdateProcess.new.run(request) if request.query_type == "UPDATE"
+        DeleteProcess.new.run(request) if request.query_type == "DELETE"
     end
 end
 
@@ -55,21 +57,9 @@ class UpdateProcess
     end
 end
 
-class SetCommand
-    def initialize(hash_data)
-        @hash_data = hash_data
-    end
-
-    def run
-    end
-end
-
-class DeleteCommand
-    def initialize(selected_columns)
-        @selected_columns = selected_columns
-    end
-
-    def run
+class DeleteProcess
+    def run(request)
+        p "Hello from Delete Class"
     end
 end
 
@@ -92,6 +82,7 @@ class PrintAttributes
         puts "Join_table:       #{request.join_table}"          if request.join_table != nil
         puts "New joined table: #{request.new_joined_table}"    if request.join_table != nil
         puts "On:               #{request.on_hash}"             if request.on_hash != nil
+        puts "Delete table:     #{request.delete_table}"    if request.join_table != nil
         puts "Query result:"
         puts request.query_result
         puts "----------------------------------------------------------------------------------------------------------------------------------------"
