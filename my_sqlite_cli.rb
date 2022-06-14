@@ -11,7 +11,7 @@ class MySqliteQueryCli
             request_hash = GetKeywordHash.new.run(validated_cli_array)
             request = MySqliteRequest.new(request_hash)
             RouteRequest.new.run(request)
-            PrintCommand.new.run(request)
+            PrintAttributes.new.run(request)
         end
     end
 end

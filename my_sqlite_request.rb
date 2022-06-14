@@ -74,25 +74,25 @@ class DeleteCommand
     end
 end
 
-class PrintCommand
+class PrintAttributes
     def run(request)
         puts
         puts "---------------------------------------------------------------------------------------------------------------------------------------"
         puts "REQUEST ATTRIBUTES"
         puts "Query type:       #{request.query_type}"
-        puts "Selected columns: #{request.selected_columns}"
-        puts "Current table:    #{request.current_table}"
-        puts "Order:            #{request.order}"
-        puts "Insert table:     #{request.insert_table}"
-        puts "Insert columns:   #{request.insert_columns}"
-        puts "Insert values:    #{request.insert_values}"
-        puts "Insert hash:      #{request.insert_hash}"
-        puts "Update table:     #{request.update_table}"
-        puts "Set:              #{request.set}"
-        puts "Where:            #{request.where}"
-        puts "Join_table:       #{request.join_table}"
-        puts "New joined table: #{request.new_joined_table}"
-        puts "On:               #{request.on_hash}"
+        puts "Selected columns: #{request.selected_columns}"    if request.selected_columns != nil
+        puts "Current table:    #{request.current_table}"       if request.current_table != nil
+        puts "Order:            #{request.order}"               if request.order != nil
+        puts "Insert table:     #{request.insert_table}"        if request.insert_table != nil
+        puts "Insert columns:   #{request.insert_columns}"      if request.insert_columns != nil
+        puts "Insert values:    #{request.insert_values}"       if request.insert_values != nil
+        puts "Insert hash:      #{request.insert_hash}"         if request.insert_hash != nil
+        puts "Update table:     #{request.update_table}"        if request.update_table != nil
+        puts "Set:              #{request.set}"                 if request.set != nil
+        puts "Where:            #{request.where}"               if request.where != nil
+        puts "Join_table:       #{request.join_table}"          if request.join_table != nil
+        puts "New joined table: #{request.new_joined_table}"    if request.new_joined_table != nil
+        puts "On:               #{request.on_hash}"             if request.on_hash != nil
         puts "Query result:"
         puts request.query_result
         puts "----------------------------------------------------------------------------------------------------------------------------------------"
