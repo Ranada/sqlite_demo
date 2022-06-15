@@ -1,5 +1,3 @@
-# require 'csv'
-
 class CsvProcess
     attr_accessor :table_data
 
