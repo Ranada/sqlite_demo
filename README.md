@@ -7,17 +7,18 @@ This Sqlite Demo is a command-line application to understand the inner workings 
 ## Description
 The development of this command-line application is broken down into three overarching parts:
 1. Created a custom command-line prompt for accepting and parsing SQL formatted text entries
-2. Tracking the attributes of the SQL request in an object
+2. Tracking the attributes of an SQL request in an object
 3. Routing an SQL request based on its attributes for data processing and display
 
 ## Installation
 Steps:
-1. Navigate to the directory containing my_sqlite_cli.rb: `cd sqlite_demo`
-2. Run the Sqlite Demo command-line app: `ruby my_sqlite_cli.rb`
+1. Download this project manually or use terminal: `git clone https://github.com/Ranada/sqlite_demo.git`
+2. Navigate to the directory containing my_sqlite_cli.rb: `cd sqlite_demo`
+3. Run the Sqlite Demo command-line app: `ruby my_sqlite_cli.rb`
 <img src="./docs/images/sqlite-demo-1.png" >
 
 ## Usage
-You can use basic SQL commands such as the ones below. CSV demo files are included for convenience (nba_player_data.csv, nba_players_extra_info.csv).
+This demo is limited to basic SQL commands such as the ones below. CSV demo files are included for convenience and experimenting (nba_player_data.csv, nba_players_extra_info.csv).
 
 `SELECT * FROM nba_player_data.csv;`
 <img src="./docs/images/sqlite-demo-2.png" >
