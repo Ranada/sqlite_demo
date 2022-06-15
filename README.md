@@ -20,18 +20,23 @@ Steps:
 ## Usage
 This demo is limited to basic SQL commands such as the ones below. CSV demo files are included for convenience and experimenting (nba_player_data.csv, nba_players_extra_info.csv).
 
+### SELECT
 `SELECT * FROM nba_player_data.csv;`
 <img src="./docs/images/sqlite-demo-2.png" >
 
+### ORDER BY
 `SELECT name, year_start, college, birth_date FROM nba_player_data.csv WHERE college=‘Harvard University’ ORDER BY year_start DESC;`
 <img src="./docs/images/sqlite-demo-5.png" >
 
+### INSERT
 `INSERT into nba_player_data.csv (name, year_start, year_end, position, height, weight, birth_date, college) VALUES (Neil Ranada, 2005, 2015, F, 5-7, 160, January 01, 1980, University of Washington);`
 <img src="./docs/images/sqlite-demo-6.png" >
 
+### JOIN
 `SELECT name, college, birth_state FROM nba_player_data JOIN nba_players_extra_info ON nba_player_data.name=nba_players_extra_info.player WHERE college='Princeton University' ORDER BY name DESC;`
 <img src="./docs/images/sqlite-demo-8.png" >
 
+### DELETE
 `DELETE FROM nba_player_data WHERE name=“Neil Ranada”;`
 <img src="./docs/images/sqlite-demo-9.png" >
 
