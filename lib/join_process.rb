@@ -13,13 +13,13 @@ class JoinCsvs
 
     def run(request)
         p "Creating new joined csv. This may take a few moments for large data sets."
-        CreateJoinCSV.new.run(request)
+        CreateJoinCsv.new.run(request)
         AddRows.new.run(request)
         self.join_result = CSV.parse(File.read(request.new_joined_table ), headers: true)
     end
 end
 
-class CreateJoinCSV
+class CreateJoinCsv
     def run(request)
         CSV.open(request.new_joined_table , "a+", :row_sep => "\r\n") do |new_joined_csv|
             combined_headers = add_combined_headers(request)

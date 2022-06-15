@@ -5,7 +5,6 @@ require "readline"
 class MySqliteQueryCli
     def run!
         while cli_entry = Readline.readline("my_sqlite_query_cli> ", true)
-            Readline::HISTORY
             cli_array = ParseCli.new.run(cli_entry)
             validated_cli_array = ValidateQuery.new.run(cli_array)
             request_hash = GetKeywordHash.new.run(validated_cli_array)
