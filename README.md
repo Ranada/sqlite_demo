@@ -49,7 +49,7 @@ This demo is limited to basic SQL commands such as the ones below. CSV demo file
 This project was a good challenge in handling CSV data. I feel I understand what's going on under the hood of SQL better. I need to move on to other projects, but perhaps I'll revisit this to improve the structure and clean up the code.
 
 ## Have recommendations? Want to chat about programming and other good stuff? Let's connect.
-neil.ranada@gmail.com
+neil.ranada@gmail.com </br>
 https://www.linkedin.com/in/neilranada/
 
 ### The Core Team
