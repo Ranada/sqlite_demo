@@ -29,7 +29,7 @@ This demo is limited to basic SQL commands such as the ones below. CSV demo file
 <img src="./docs/images/sqlite-demo-5.png" >
 
 ### INSERT
-`INSERT into nba_player_data.csv (name, year_start, year_end, position, height, weight, birth_date, college) VALUES (Neil Ranada, 2005, 2015, F, 5-7, 160, January 01, 1980, University of Washington);`
+`INSERT INTO nba_player_data.csv (name, year_start, year_end, position, height, weight, birth_date, college) VALUES (Neil Ranada, 2005, 2015, F, 5-7, 160, January 01, 1980, University of Washington);`
 <img src="./docs/images/sqlite-demo-6.png" >
 
 ### JOIN
@@ -42,8 +42,8 @@ This demo is limited to basic SQL commands such as the ones below. CSV demo file
 
 ## Takeaways and Lessons Learned
 - I initially started with one class for handling SQL requests that quickly snowballed into an unwieldy mega class. Based on feedback, I started over, attempting to follow a command design pattern to make the code more modular and cleaner
-- Parsing command-line text takes rigorous formatting to make sure it's usable in other parts of the code
-- Scrub your data files to make sure it's in a usable format
+- Parsing command-line text takes careful capturing and formatting to make sure it's usable in other parts of the code. For example with `SELECT name, year_start, college, birth_date FROM nba_player_data.csv WHERE college=‘Harvard University’ ORDER BY year_start DESC;`. How do you grab the  `college=‘Harvard University’` arguments after the WHERE keyword? How do you tell the program to recognize an argument without a space or with a space between the column name and criteria? For example, I used regex: `column_name = args.match(/([\S\s]+)\s*=\s*/).captures[0]`
+- Scrub CSV data files to make sure it's in a usable format. Make sure columns are labeled, and naming conventions make sense. Also, undo any unintended changes to the data after a test run to ensure it is ready for the next iteration.
 
 ## Final thoughts
 This project was a good challenge in handling CSV data. I feel I understand what's going on under the hood of SQL better. I need to move on to other projects, but perhaps I'll revisit this to improve the structure and clean up the code.
