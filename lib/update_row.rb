@@ -10,11 +10,10 @@ end
 
 class CollectRowsToUpdate
     def run(request, rows_to_update)
-        p "COLLECT ROWS"
-        p where_column_name = request.where.keys.first
-        p where_criteria = request.where.values.first
-        p set_column_name = request.set.keys.first
-        p set_criteria = request.set.values.first
+        where_column_name = request.where.keys.first
+        where_criteria = request.where.values.first
+        set_column_name = request.set.keys.first
+        set_criteria = request.set.values.first
         CSV.parse(File.read(request.update_table), :headers => true) do |row|
             if row.to_hash[where_column_name] == where_criteria
                 rows_to_update << row.to_hash.merge!({set_column_name => set_criteria})
